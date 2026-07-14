@@ -6931,8 +6931,11 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
   //   상판 밑면 Y = SHIELD_CENTER_Y + SHIELD_H/2 - 3 = (BALL_Y_INSPECT+275)+475-3 = BALL_Y_INSPECT+747
   //   ※ TDZ 회피: SHIELD_* 상수가 뒤(5660~)에 선언되어 리터럴 747 사용 (SHIELD_H/위치 변경 시 동기 필요)
   const TOPBAR_UNDERSIDE_Y = 985 + 896 - 3;  // ★[v892] = 1878 — SHIELD_H 896 정합 천장 밑면 (빔 54 하강, 부품 1848 위 여유 30)
-  const matRigPrint = new THREE.MeshStandardMaterial({ color: 0x2a3240, roughness: 0.5, metalness: 0.3 });   // ★[v879] 통합 거치대 3D 프린팅 재질 (박스 프린팅 색상 통일) — 전 지지대 공용
+  const matRigPrint = new THREE.MeshStandardMaterial({ color: 0x2a3240, roughness: 0.5, metalness: 0.3 });   // ★[v879] 통합 거치대 3D 프린팅 재질 (박스 프린팅 색상 통일) — 지지대 프레임(상단 빔·거치대) 공용
   window.__matRigPrint = matRigPrint;
+  // ★[v906] 차광막프레임(플랜지판·커넥터 박스·하강 프레임 바) 전용 색상 — 지지대 프레임(위 다크 그래파이트)과 구분되도록 밝은 아노다이즈 알루미늄
+  const matShadeFrame = new THREE.MeshStandardMaterial({ color: 0xb7c2c8, roughness: 0.4, metalness: 0.55 });
+  window.__matShadeFrame = matShadeFrame;
 
   // 상판 밑면(topY)에서 픽스처(fx,fy,fz)로 수직 드롭 스트럿 + 마운트 거치대 생성
   function makeDropMount(fx, fy, fz, topY){
@@ -7319,18 +7322,19 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     //   기준값: 빔 중심 FRAME_Y=1866, 빔 전면 z=+12, 판 앞면 z=+18. 작업대 상면 985(=바 발).
     [-505, 505].forEach(excFrame => {
       // ① 플랜지판(LB-30-06) — 빔 전면(z12~18)에 밀착한 수직 솔리드판. X104 × Y52 × t6 (전면에서 구멍 보이는 판)
-      const fl = new THREE.Mesh(new THREE.BoxGeometry(104, 52, 6), matRigPrint);
+      //   ★[v906] 차광막프레임 계열 색상(matShadeFrame) 적용 — 지지대 프레임(빔)과 구분
+      const fl = new THREE.Mesh(new THREE.BoxGeometry(104, 52, 6), matShadeFrame);
       fl.position.set(excFrame, FRAME_Y + 2, 15);   // z12~18(빔 전면 밀착), y1842~1894
       fl.castShadow = true; G.add(fl);
       if (window.__addPartNo) window.__addPartNo(fl, 'LB-30-06', 0);
       // ② 커넥터 박스 — 차광막프레임 끝이 판을 뚫고 앞(+Z)으로 돌출한 입체 박스(이미지1 노란 박스). z18~44(판 앞면보다 26 돌출)
-      const conn = new THREE.Mesh(new THREE.BoxGeometry(38, 36, 26), matRigPrint);
+      const conn = new THREE.Mesh(new THREE.BoxGeometry(38, 36, 26), matShadeFrame);
       conn.position.set(excFrame, FRAME_Y, 18 + 13);   // z18~44, y1848~1884 (판 중앙 앞으로 돌출)
       conn.castShadow = true; G.add(conn);
       // ③ 차광막프레임 바(LB-30-07) — 커넥터 박스에서 작업대 상면까지 하강(빔 앞면 앞쪽). X22 × Z16
       const barTop  = FRAME_Y - 6;                 // 1860 (커넥터 박스 안쪽에서 시작)
       const barFoot = 985;                         // 작업대 상면
-      const bar = new THREE.Mesh(new THREE.BoxGeometry(22, barTop - barFoot, 16), matRigPrint);
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(22, barTop - barFoot, 16), matShadeFrame);
       bar.position.set(excFrame, (barTop + barFoot) / 2, 27);   // z19~35 (판 앞쪽, 빔 앞면에서 앞으로)
       bar.castShadow = true; G.add(bar);
       if (window.__addPartNo) window.__addPartNo(bar, 'LB-30-07', 0);
