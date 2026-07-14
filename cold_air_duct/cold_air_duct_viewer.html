@@ -45,16 +45,16 @@
     <canvas id="cv"></canvas>
     <div id="dims">
       <div><span class="tag">흡입</span><b id="d_in">140 × 80</b> mm (모서리 R<b id="d_cr">20</b>)</div>
-      <div><span class="tag">토출</span>Ø<b id="d_out">148</b> mm 원통</div>
-      <div><span class="tag">벤드</span><b id="d_bd">90</b>° 수평(옆) · R<b id="d_r">90</b></div>
+      <div><span class="tag">토출</span>보어 Ø<b id="d_out">142</b> · <b>외부 수나사</b> 마루 Ø<b id="d_cr2">151</b></div>
+      <div><span class="tag">호스</span>Ø150 커넥터 체결 · <span class="tag">벤드</span><b id="d_bd">90</b>° R<b id="d_r">80</b></div>
       <div><span class="tag">외형</span><b id="d_bb">— × — × —</b> mm</div>
     </div>
     <div id="hint">드래그=회전 · 휠=확대 · 우클릭드래그=이동</div>
   </div>
   <div id="panel">
     <h1>냉기 유도 덕트 (모서리 R)</h1>
-    <p class="sub">사각(140×80, 모서리 라운드) 흡입면을 에어컨 토출면에 수직으로 밀착 →
-      큰 반경으로 냉기를 90° 옆(수평)으로 꺾어 → Ø148 원통(연장) 토출.</p>
+    <p class="sub">사각(140×80, 모서리 R) 흡입면을 에어컨 토출면에 수직 밀착 → 90° 옆(수평) 벤드
+      → 보어 Ø142 원통, 바깥 <b>수나사</b>에 Ø150 유연 호스/커넥터를 돌려 끼움.</p>
 
     <div class="grp"><h2>흡입구 (둥근 사각)</h2>
       <label class="row"><span>가로</span><input id="p_iw" type="range" min="80" max="220" step="1" value="140"><span class="val" id="v_iw">140</span></label>
@@ -65,8 +65,8 @@
     <div class="grp"><h2>벤드 / 토출</h2>
       <label class="row"><span>벤드각°</span><input id="p_bd" type="range" min="45" max="180" step="5" value="90"><span class="val" id="v_bd">90</span></label>
       <label class="row"><span>벤드 R</span><input id="p_br" type="range" min="60" max="150" step="1" value="80"><span class="val" id="v_br">80</span></label>
-      <label class="row"><span>토출 Ø</span><input id="p_od" type="range" min="80" max="180" step="1" value="148"><span class="val" id="v_od">148</span></label>
-      <label class="row"><span>토출 칼라</span><input id="p_lo" type="range" min="0" max="80" step="1" value="42"><span class="val" id="v_lo">42</span></label>
+      <label class="row"><span>토출 보어Ø</span><input id="p_od" type="range" min="80" max="180" step="1" value="142"><span class="val" id="v_od">142</span></label>
+      <label class="row"><span>토출 칼라</span><input id="p_lo" type="range" min="0" max="90" step="1" value="46"><span class="val" id="v_lo">46</span></label>
     </div>
     <div class="grp"><h2>벽 / 플랜지</h2>
       <label class="row"><span>벽 두께</span><input id="p_wl" type="range" min="1.6" max="4" step="0.1" value="2.6"><span class="val" id="v_wl">2.6</span></label>
@@ -93,8 +93,9 @@
 // ============================================================================
 // 0. 파라미터 (generate_stl.py 와 동일 개념)
 // ============================================================================
-const P = { iw:140, id:80, cr:20, od:148, bd:90, br:80, li:8, lo:42, wl:2.6, fl:14,
-            fth:3, fr:10, beadT:1.6, beadH:3, N:128, bendSteps:64, lipSteps:5 };
+const P = { iw:140, id:80, cr:20, od:142, bd:90, br:80, li:8, lo:46, wl:2.6, fl:14,
+            fth:3, fr:10, beadT:0, beadH:3, N:128, bendSteps:64, lipSteps:5,
+            threadOn:true, hoseDia:150, pitch:15, thrRound:2.0, starts:2, thrMargin:3 };
 const DEF = Object.assign({}, P);
 
 const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
@@ -169,6 +170,32 @@ function buildMesh(p){
     for(let k=0;k<N;k++){const k2=(k+1)%N;
       quad(bo[k],bo[k2],to[k2],to[k]);quad(bi[k],ti[k],ti[k2],bi[k2]);
       quad(bi[k],bi[k2],bo[k2],bo[k]);quad(ti[k],to[k],to[k2],ti[k2]);}
+  }
+  // 토출 외부 수나사 (나선 튜브)
+  if(p.threadOn){
+    const f=st[L-1],U=f.U,Vv=f.V,Ta=nrm(crs(U,Vv));
+    const Cend=f.C,Cstart=sub(Cend,scl(Ta,p.lo)),rr=p.od/2+W;
+    const dphi=2*Math.PI/p.pitch, s0=p.thrMargin, s1=p.lo-p.thrMargin, len=s1-s0;
+    const steps=Math.max(8,Math.round(len/p.pitch*24)),Mr=10;
+    for(let k=0;k<p.starts;k++){
+      const ph0=2*Math.PI*k/p.starts,rings=[],cen=[];
+      for(let i=0;i<=steps;i++){
+        const s=s0+len*i/steps,phi=dphi*s+ph0,cp=Math.cos(phi),sp=Math.sin(phi);
+        const rad=[cp*U[0]+sp*Vv[0],cp*U[1]+sp*Vv[1],cp*U[2]+sp*Vv[2]];
+        const H=[Cstart[0]+s*Ta[0]+rr*rad[0],Cstart[1]+s*Ta[1]+rr*rad[1],Cstart[2]+s*Ta[2]+rr*rad[2]];
+        const dr=[-sp*U[0]+cp*Vv[0],-sp*U[1]+cp*Vv[1],-sp*U[2]+cp*Vv[2]];
+        const Th=nrm([Ta[0]+rr*dphi*dr[0],Ta[1]+rr*dphi*dr[1],Ta[2]+rr*dphi*dr[2]]);
+        const n1=nrm(sub(rad,scl(Th,dot(rad,Th)))),n2=crs(Th,n1),ring=[];
+        for(let j=0;j<Mr;j++){const psi=2*Math.PI*j/Mr,c2=Math.cos(psi),s2=Math.sin(psi);
+          ring.push(addV([H[0]+p.thrRound*(c2*n1[0]+s2*n2[0]),H[1]+p.thrRound*(c2*n1[1]+s2*n2[1]),H[2]+p.thrRound*(c2*n1[2]+s2*n2[2])]));}
+        rings.push(ring);cen.push(H);
+      }
+      for(let i=0;i<rings.length-1;i++)for(let j=0;j<Mr;j++){const j2=(j+1)%Mr;
+        quad(rings[i][j],rings[i][j2],rings[i+1][j2],rings[i+1][j]);}
+      const c0=addV(cen[0]),cN=addV(cen[cen.length-1]);
+      for(let j=0;j<Mr;j++){const j2=(j+1)%Mr;
+        T.push([c0,rings[0][j2],rings[0][j]]);T.push([cN,rings[rings.length-1][j],rings[rings.length-1][j2]]);}
+    }
   }
 
   let mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];
@@ -258,6 +285,7 @@ function rebuild(keepframe){
   document.getElementById("d_in").textContent=`${P.iw} × ${P.id}`;
   document.getElementById("d_cr").textContent=P.cr;
   document.getElementById("d_out").textContent=P.od;
+  document.getElementById("d_cr2").textContent=(P.od+2*P.wl+2*P.thrRound).toFixed(0);
   document.getElementById("d_bd").textContent=P.bd;
   document.getElementById("d_r").textContent=P.br;
   const s=m.size;document.getElementById("d_bb").innerHTML=

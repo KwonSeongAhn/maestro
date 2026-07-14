@@ -25,17 +25,28 @@ import struct
 INLET_W    = 140.0   # 사각 흡입구 가로 (수평, Y, 벤드 평면 내)
 INLET_D    = 80.0    # 사각 흡입구 세로 (수직, Z, 평면 밖)
 CORNER_R   = 20.0    # ★ 단면 사각 모서리 라운드 반경 (모서리 R)
-OUTLET_DIA = 148.0   # 원통 토출 지름 (Ø148)
+OUTLET_DIA = 142.0   # 원통 토출 보어(내경). 수나사 체결용으로 Ø150 호스 안에 들어가도록 축소.
 BEND_DEG   = 90.0    # 벤드 각도 (90=옆으로 수평, 180=반대편)
 BEND_R     = 80.0    # ★ 벤드 중심선 반경 (꺾임 거리 최소화 → 타이트)
 LIP_IN     = 8.0     # 사각 흡입 직선 스냅(+X) — 최소화(거의 흡입면서 바로 꺾임)
-LIP_OUT    = 42.0    # 원통 토출 직선 칼라 (기존 32 → +30%)
+LIP_OUT    = 46.0    # 원통 토출 직선 칼라(나사부 길이 확보)
 WALL       = 2.6     # 벽 두께
 FLANGE     = 14.0    # 흡입 수직 플랜지 폭 (0=없음)
 FLANGE_TH  = 3.0     # 플랜지 두께(X)
 FLANGE_R   = 10.0    # ★ 플랜지 외곽 모서리 라운드
-BEAD_T     = 1.6     # 호스 이탈방지 비드 돌출(반경)
+BEAD_T     = 0.0     # 호스 이탈방지 비드(나사산으로 대체, 0=없음)
 BEAD_H     = 3.0     # 비드 높이(축)
+
+# ── 토출 수나사(외부 나사산) — Ø150 호스/커넥터가 위로 체결 ──
+THREAD_ON     = True
+HOSE_DIA      = 150.0  # 연결 호스/커넥터 공칭경(내부 나사산)
+THREAD_PITCH  = 15.0   # 나사 피치(호스 주름 간격에 맞춰 실측·조정)
+THREAD_ROUND  = 2.0    # 나사산 단면 반경(둥근 프로파일). 마루=칼라외경+이 값
+THREAD_STARTS = 2      # 나사 줄 수(샘플 커넥터 내부 리브 2개 → 2줄)
+THREAD_MARGIN = 3.0    # 칼라 양끝 나사 없는 여유
+THR_RSTEP     = 12     # 나사 단면 분할
+THR_SSTEP_PT  = 28     # 한 바퀴당 세로 분할
+
 N          = 160     # 원주 분할
 BEND_STEPS = 80      # 벤드 분할
 LIP_STEPS  = 5       # 직선 립 분할
@@ -205,6 +216,57 @@ def build_bead(mesh, st):
         mesh.quad(ti[k], to[k], to[k2], ti[k2])
 
 # ----------------------------------------------------------------------------
+# 토출 수나사(외부 나사산): 칼라 바깥면에 나선 튜브(둥근 리브)를 감아 생성.
+#   호스/커넥터(내부 나사산, Ø150)가 위로 돌려 끼워짐.
+# ----------------------------------------------------------------------------
+def build_thread(mesh, st):
+    if not THREAD_ON: return
+    f = st[-1]
+    U, V = f["U"], f["V"]
+    T = norm(cross(U, V))                     # 축(진행) 방향
+    C_end = f["C"]                            # 토출 개구 중심
+    C_start = sub(C_end, scale(T, LIP_OUT))   # 칼라 시작(벤드 끝)
+    rr = R + WALL                             # 칼라 외경(나사 골 표면)
+    dphi = 2.0*math.pi / THREAD_PITCH
+    s0, s1 = THREAD_MARGIN, LIP_OUT - THREAD_MARGIN
+    length = s1 - s0
+    steps = max(8, int(length / THREAD_PITCH * THR_SSTEP_PT))
+    M = THR_RSTEP
+    for k in range(THREAD_STARTS):
+        phase0 = 2.0*math.pi*k/THREAD_STARTS
+        rings, centers = [], []
+        for i in range(steps+1):
+            s = s0 + length*i/steps
+            phi = dphi*s + phase0
+            cp, sp = math.cos(phi), math.sin(phi)
+            radial = (cp*U[0]+sp*V[0], cp*U[1]+sp*V[1], cp*U[2]+sp*V[2])
+            H = (C_start[0]+s*T[0]+rr*radial[0],
+                 C_start[1]+s*T[1]+rr*radial[1],
+                 C_start[2]+s*T[2]+rr*radial[2])
+            drad = (-sp*U[0]+cp*V[0], -sp*U[1]+cp*V[1], -sp*U[2]+cp*V[2])
+            Th = norm((T[0]+rr*dphi*drad[0], T[1]+rr*dphi*drad[1], T[2]+rr*dphi*drad[2]))
+            n1 = norm(sub(radial, scale(Th, dot(radial, Th))))
+            n2 = cross(Th, n1)
+            ring = []
+            for j in range(M):
+                psi = 2.0*math.pi*j/M
+                c2, s2 = math.cos(psi), math.sin(psi)
+                p = (H[0]+THREAD_ROUND*(c2*n1[0]+s2*n2[0]),
+                     H[1]+THREAD_ROUND*(c2*n1[1]+s2*n2[1]),
+                     H[2]+THREAD_ROUND*(c2*n1[2]+s2*n2[2]))
+                ring.append(mesh.add_v(p))
+            rings.append(ring); centers.append(H)
+        for i in range(len(rings)-1):
+            for j in range(M):
+                j2 = (j+1) % M
+                mesh.quad(rings[i][j], rings[i][j2], rings[i+1][j2], rings[i+1][j])
+        c0 = mesh.add_v(centers[0]); cN = mesh.add_v(centers[-1])
+        for j in range(M):
+            j2 = (j+1) % M
+            mesh.t.append((c0, rings[0][j2], rings[0][j]))      # 시작 캡
+            mesh.t.append((cN, rings[-1][j], rings[-1][j2]))    # 끝 캡
+
+# ----------------------------------------------------------------------------
 # 검증 / 기록
 # ----------------------------------------------------------------------------
 def check_watertight(mesh):
@@ -240,10 +302,13 @@ def main():
     st = build_shell(mesh)
     build_flange(mesh, st)
     build_bead(mesh, st)
+    build_thread(mesh, st)
     bad, unmatched, ne = check_watertight(mesh)
     write_stl(mesh, OUT_PATH)
     bx, by, bz = bbox(mesh)
-    print(f"[형상] {BEND_DEG:.0f}° 수평(옆) 벤드, 흡입 {INLET_W:.0f}x{INLET_D:.0f}(모서리R{CORNER_R:.0f}) → Ø{OUTLET_DIA:.0f} 원통(칼라 {LIP_OUT:.0f})")
+    crest = OUTLET_DIA + 2*WALL + 2*THREAD_ROUND
+    print(f"[형상] {BEND_DEG:.0f}° 수평 벤드, 흡입 {INLET_W:.0f}x{INLET_D:.0f}(R{CORNER_R:.0f}) → Ø{OUTLET_DIA:.0f} 보어 원통")
+    print(f"[나사] 외부 수나사 {THREAD_STARTS}줄, 피치 {THREAD_PITCH:.0f}, 마루 Ø{crest:.1f} (호스 Ø{HOSE_DIA:.0f} 체결)")
     print(f"[벤드] 중심선 R={BEND_R:.0f}, 흡입립 {LIP_IN:.0f}, 토출칼라 {LIP_OUT:.0f}, 벽 {WALL}")
     print(f"[외형] 약 {bx:.0f} x {by:.0f} x {bz:.0f} mm  (X x Y x Z)")
     print(f"[메시] 정점 {len(mesh.v)}, 삼각형 {len(mesh.t)}")

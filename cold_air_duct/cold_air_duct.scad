@@ -2,7 +2,8 @@
 //  신일 창문형 에어컨 냉기 유도 덕트 — 측면도 기준 상향 벤드 (모서리 R)
 //  ------------------------------------------------------------------------
 //  사각(모서리 라운드) 140x80 흡입면을 에어컨 토출면(수직)에 밀착 →
-//  큰 반경으로 냉기를 90° 옆(수평)으로 꺾어 → Ø148 원통(연장) 토출.
+//  큰 반경으로 냉기를 90° 옆(수평)으로 꺾어 → 보어 Ø142 원통(외부 수나사) 토출.
+//  토출 원통 바깥면 나선 수나사에 Ø150 유연 호스/커넥터가 돌려 끼워짐.
 //
 //  좌표계: 흡입면 = x=0 (YZ). 냉기 +X 유입 → 벤드(X-Y 평면) → +Y(수평 옆) 토출.
 //  OpenSCAD 에서 F6 렌더 후 File > Export > STL.
@@ -20,8 +21,15 @@ lip_in    = 8;     // 흡입 직선 스냅(+X) — 최소화
 /* [ 벤드 / 토출 ] */
 bend_deg  = 90;    // 벤드 각 (90=옆으로 수평, 180=반대편)
 bend_r    = 80;    // 벤드 중심선 반경(꺾임 거리 최소화)
-outlet_d  = 148;   // 원통 토출 지름 Ø148
-lip_out   = 42;    // 토출 직선 칼라 (기존 32 → +30%)
+outlet_d  = 142;   // 원통 토출 보어(내경) — Ø150 호스 안에 들어가도록
+lip_out   = 46;    // 토출 직선 칼라(나사부)
+
+/* [ 토출 외부 수나사 (Ø150 호스/커넥터 체결) ] */
+thread_on    = true;
+pitch        = 15;   // 나사 피치(호스 주름 간격 실측·조정)
+thr_round    = 2.0;  // 나사산 단면 반경(마루 = 칼라외경 + 이 값)
+starts       = 2;    // 나사 줄 수
+thr_margin   = 3;    // 칼라 양끝 여유
 
 /* [ 벽 / 플랜지 ] */
 wall      = 2.6;   // 벽 두께
@@ -29,7 +37,7 @@ flange    = 14;    // 수직 플랜지 폭 (0=없음)
 flange_th = 3;     // 플랜지 두께(X)
 flange_r  = 10;    // 플랜지 외곽 라운드
 screw_d   = 4.5;   // 플랜지 나사 구멍 (0=없음)
-bead      = 1.6;   // 호스 이탈방지 비드 (0=없음)
+bead      = 0;     // 호스 이탈방지 비드(나사산으로 대체, 0=없음)
 
 /* [ 해상도 ] */
 N     = 120;       // 원주 분할
@@ -131,8 +139,34 @@ module bead_ring() {
     }
 }
 
+// 토출 외부 수나사: 월드좌표 나선 위에 구를 hull 로 이어 코일 형성
+module thread_coil() {
+    if (thread_on) {
+        Te  = [cos(bend_deg), sin(bend_deg), 0];      // 토출 진행방향(단위)
+        Uax = [-sin(bend_deg), cos(bend_deg), 0];     // 면내 반경축
+        Vax = [0, 0, 1];                              // 면밖(세로)축
+        aC  = [lip_in + bend_r*sin(bend_deg), bend_r*(1-cos(bend_deg)), 0]; // 칼라 시작
+        rr  = outlet_d/2 + wall;                      // 칼라 외경(나사 골 표면)
+        s0 = thr_margin; s1 = lip_out - thr_margin;
+        steps = ceil((s1-s0)/pitch*24);
+        for (k=[0:starts-1])
+            for (i=[0:steps-1]) {
+                sa = s0 + (s1-s0)*i/steps;    sb = s0 + (s1-s0)*(i+1)/steps;
+                pa = 360*sa/pitch + 360*k/starts;
+                pb = 360*sb/pitch + 360*k/starts;
+                Ha = aC + sa*Te + rr*(cos(pa)*Uax + sin(pa)*Vax);
+                Hb = aC + sb*Te + rr*(cos(pb)*Uax + sin(pb)*Vax);
+                hull() {
+                    translate(Ha) sphere(r=thr_round, $fn=14);
+                    translate(Hb) sphere(r=thr_round, $fn=14);
+                }
+            }
+    }
+}
+
 union() {
     duct_shell();
     flange_plate();
     bead_ring();
+    thread_coil();
 }
