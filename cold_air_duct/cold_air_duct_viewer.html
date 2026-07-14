@@ -1,0 +1,314 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>신일 창문형 에어컨 · 냉기 유도 덕트(모서리 R) 뷰어</title>
+<style>
+  :root{ --bg:#0f1216; --panel:#181d24; --line:#2a323c; --txt:#e7ecf2; --sub:#9aa7b4; --acc:#38bdf8; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif}
+  #wrap{display:flex;height:100vh;width:100vw;overflow:hidden}
+  #view{flex:1;position:relative;min-width:0}
+  canvas{display:block;width:100%;height:100%;cursor:grab}
+  canvas:active{cursor:grabbing}
+  #panel{width:322px;flex:0 0 322px;background:var(--panel);border-left:1px solid var(--line);
+    padding:18px 18px 28px;overflow-y:auto}
+  h1{font-size:16px;margin:0 0 2px}
+  .sub{color:var(--sub);font-size:12px;margin:0 0 14px;line-height:1.5}
+  .grp{border-top:1px solid var(--line);padding:12px 0 4px}
+  .grp h2{font-size:12px;letter-spacing:.04em;color:var(--acc);margin:0 0 8px;text-transform:uppercase}
+  label.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:7px 0;font-size:13px}
+  label.row span{color:var(--sub)}
+  input[type=range]{flex:1;accent-color:var(--acc)}
+  .val{min-width:46px;text-align:right;font-variant-numeric:tabular-nums;color:var(--txt)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  button{background:#222a33;color:var(--txt);border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;font-size:13px;cursor:pointer;flex:1}
+  button:hover{border-color:var(--acc)}
+  button.primary{background:var(--acc);color:#04121c;border-color:var(--acc);font-weight:600}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;margin:7px 0;color:var(--sub)}
+  .chk input{accent-color:var(--acc)}
+  #dims{position:absolute;left:14px;top:12px;background:rgba(16,20,26,.72);border:1px solid var(--line);
+    border-radius:10px;padding:10px 13px;font-size:12px;line-height:1.7;color:var(--sub);backdrop-filter:blur(3px)}
+  #dims b{color:var(--txt);font-variant-numeric:tabular-nums}
+  #warn{color:#fbbf24}
+  #hint{position:absolute;right:14px;bottom:12px;color:var(--sub);font-size:11px;opacity:.7}
+  .tag{display:inline-block;background:#04121c;color:var(--acc);border:1px solid #10465b;
+    border-radius:6px;padding:1px 7px;font-size:11px;margin-right:5px}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="view">
+    <canvas id="cv"></canvas>
+    <div id="dims">
+      <div><span class="tag">흡입</span><b id="d_in">140 × 80</b> mm (모서리 R<b id="d_cr">20</b>)</div>
+      <div><span class="tag">토출</span>보어 Ø<b id="d_out">142</b> · <b>외부 수나사</b> 마루 Ø<b id="d_cr2">151</b></div>
+      <div><span class="tag">호스</span>Ø150 커넥터 체결 · <span class="tag">벤드</span><b id="d_bd">90</b>° R<b id="d_r">80</b></div>
+      <div><span class="tag">외형</span><b id="d_bb">— × — × —</b> mm</div>
+    </div>
+    <div id="hint">드래그=회전 · 휠=확대 · 우클릭드래그=이동</div>
+  </div>
+  <div id="panel">
+    <h1>냉기 유도 덕트 (모서리 R)</h1>
+    <p class="sub">사각(140×80, 모서리 R) 흡입면을 에어컨 토출면에 수직 밀착 → 90° 옆(수평) 벤드
+      → 보어 Ø142 원통, 바깥 <b>수나사</b>에 Ø150 유연 호스/커넥터를 돌려 끼움.</p>
+
+    <div class="grp"><h2>흡입구 (둥근 사각)</h2>
+      <label class="row"><span>가로</span><input id="p_iw" type="range" min="80" max="220" step="1" value="140"><span class="val" id="v_iw">140</span></label>
+      <label class="row"><span>세로</span><input id="p_id" type="range" min="50" max="160" step="1" value="80"><span class="val" id="v_id">80</span></label>
+      <label class="row"><span>모서리 R</span><input id="p_cr" type="range" min="0" max="40" step="1" value="20"><span class="val" id="v_cr">20</span></label>
+      <label class="row"><span>흡입 립</span><input id="p_li" type="range" min="0" max="80" step="1" value="8"><span class="val" id="v_li">8</span></label>
+    </div>
+    <div class="grp"><h2>벤드 / 토출</h2>
+      <label class="row"><span>벤드각°</span><input id="p_bd" type="range" min="45" max="180" step="5" value="90"><span class="val" id="v_bd">90</span></label>
+      <label class="row"><span>벤드 R</span><input id="p_br" type="range" min="60" max="150" step="1" value="80"><span class="val" id="v_br">80</span></label>
+      <label class="row"><span>토출 보어Ø</span><input id="p_od" type="range" min="80" max="180" step="1" value="142"><span class="val" id="v_od">142</span></label>
+      <label class="row"><span>토출 길이</span><input id="p_lo" type="range" min="0" max="420" step="1" value="223"><span class="val" id="v_lo">223</span></label>
+    </div>
+    <div class="grp"><h2>벽 / 플랜지</h2>
+      <label class="row"><span>벽 두께</span><input id="p_wl" type="range" min="1.6" max="4" step="0.1" value="2.6"><span class="val" id="v_wl">2.6</span></label>
+      <label class="row"><span>플랜지</span><input id="p_fl" type="range" min="0" max="25" step="1" value="14"><span class="val" id="v_fl">14</span></label>
+      <label class="row"><span>접촉R(세로)</span><input id="p_mr" type="range" min="0" max="600" step="10" value="250"><span class="val" id="v_mr">250</span></label>
+    </div>
+    <div class="grp"><h2>보기</h2>
+      <label class="chk"><input type="checkbox" id="c_cut"> 단면 절개(내부 확인)</label>
+      <label class="chk"><input type="checkbox" id="c_wire"> 와이어프레임</label>
+      <label class="chk"><input type="checkbox" id="c_spin" checked> 자동 회전</label>
+    </div>
+    <div class="grp"><h2>내보내기</h2>
+      <div class="btns">
+        <button class="primary" id="b_stl">STL 다운로드</button>
+        <button id="b_reset">치수 초기화</button>
+      </div>
+      <p class="sub" style="margin-top:12px">모든 모서리에 R(필렛) 적용 — 단면 사각·벤드·플랜지.
+        정밀 원본: <b>cold_air_duct.stl</b> / <b>cold_air_duct.scad</b>.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+// ============================================================================
+// 0. 파라미터 (generate_stl.py 와 동일 개념)
+// ============================================================================
+const P = { iw:140, id:80, cr:20, od:142, bd:90, br:80, li:8, lo:223, wl:2.6, fl:14,
+            fth:3, fr:10, mr:250, mstart:0.3333, beadT:0, beadH:3, N:128, bendSteps:64, lipSteps:5,
+            threadOn:true, hoseDia:150, pitch:15, thrRound:2.0, starts:2, thrLen:42, thrMargin:3 };
+const DEF = Object.assign({}, P);
+
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const add=(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]];
+const scl=(a,s)=>[a[0]*s,a[1]*s,a[2]*s];
+const crs=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const nrm=a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return[a[0]/l,a[1]/l,a[2]/l];};
+
+// 둥근 사각형 반지름(각도 theta)
+function rrectSDF(x,y,hu,hv,rc){const qx=Math.abs(x)-(hu-rc),qy=Math.abs(y)-(hv-rc);
+  return Math.hypot(Math.max(qx,0),Math.max(qy,0))+Math.min(Math.max(qx,qy),0)-rc;}
+function rrectR(th,hu,hv,rc){rc=Math.max(0,Math.min(rc,Math.min(hu,hv)));
+  const c=Math.cos(th),s=Math.sin(th);let lo=0,hi=hu+hv+rc+1;
+  for(let i=0;i<36;i++){const m=(lo+hi)/2;if(rrectSDF(m*c,m*s,hu,hv,rc)<0)lo=m;else hi=m;}
+  return(lo+hi)/2;}
+function profPt(th,m,hu,hv,rc,r){const rr=rrectR(th,hu,hv,rc);
+  return[(1-m)*rr*Math.cos(th)+m*r*Math.cos(th),(1-m)*rr*Math.sin(th)+m*r*Math.sin(th)];}
+const ss=t=>t*t*(3-2*t);
+
+// ============================================================================
+// 1. 스위프 메시 (측면도 상향 벤드 + 모서리 R)
+// ============================================================================
+function stations(p){
+  const V=[0,0,1],st=[],bend=p.bd*Math.PI/180,R=p.br;   // 벤드 평면 X-Y(수평)
+  const frame=(C,T)=>({C,U:nrm(crs(V,nrm(T))),V});
+  const arcC=a=>[p.li+R*Math.sin(a),R*(1-Math.cos(a)),0];
+  const arcT=a=>[Math.cos(a),Math.sin(a),0];
+  for(let i=0;i<=p.lipSteps;i++){const f=frame([p.li*i/p.lipSteps,0,0],[1,0,0]);f.m=0;st.push(f);}
+  for(let i=1;i<=p.bendSteps;i++){const a=bend*i/p.bendSteps;const f=frame(arcC(a),arcT(a));f.m=ss(i/p.bendSteps);st.push(f);}
+  const Te=arcT(bend),Ce=arcC(bend);
+  for(let i=1;i<=p.lipSteps;i++){const f=frame(add(Ce,scl(Te,p.lo*i/p.lipSteps)),Te);f.m=1;st.push(f);}
+  return st;
+}
+function prof3d(f,th,off,p){
+  const [pu,pv]=profPt(th,f.m,p.iw/2+off,p.id/2+off,p.cr+off,p.od/2+off);
+  const C=f.C,U=f.U,Vv=f.V;
+  return[C[0]+pu*U[0]+pv*Vv[0],C[1]+pu*U[1]+pv*Vv[1],C[2]+pu*U[2]+pv*Vv[2]];
+}
+function buildMesh(p){
+  const Vt=[],T=[];const addV=q=>{Vt.push(q);return Vt.length-1;};
+  const quad=(a,b,c,d)=>{T.push([a,b,c]);T.push([a,c,d]);};
+  const st=stations(p),N=p.N,W=p.wl;
+  const th=[];for(let k=0;k<N;k++)th.push(2*Math.PI*k/N);
+  const outer=st.map(f=>th.map(t=>addV(prof3d(f,t,W,p))));
+  const inner=st.map(f=>th.map(t=>addV(prof3d(f,t,0,p))));
+  const L=st.length;
+  for(let i=0;i<L-1;i++)for(let k=0;k<N;k++){const k2=(k+1)%N;
+    quad(outer[i][k],outer[i][k2],outer[i+1][k2],outer[i+1][k]);
+    quad(inner[i][k],inner[i+1][k],inner[i+1][k2],inner[i][k2]);}
+  for(let k=0;k<N;k++){const k2=(k+1)%N;quad(outer[0][k],inner[0][k],inner[0][k2],outer[0][k2]);}
+  for(let k=0;k<N;k++){const k2=(k+1)%N;quad(outer[L-1][k],outer[L-1][k2],inner[L-1][k2],inner[L-1][k]);}
+
+  // 수직 플랜지 (둥근사각 프레임)
+  if(p.fl>0){
+    const ring=(hu,hv,rc,x,curve)=>th.map(t=>{const rr=rrectR(t,hu,hv,rc);
+      const Y=rr*Math.cos(t),Z=rr*Math.sin(t);let xx=x;
+      if(curve&&p.mr>0){                       // 수직(세로) 곡면, 아래 1/3 지점부터
+        const ozf=p.id/2+W+p.fl, zst=-ozf+2*ozf*p.mstart;
+        if(Z>zst){const d=Z-zst,sag=d<p.mr?p.mr-Math.sqrt(p.mr*p.mr-d*d):p.mr;xx=x-sag;}
+      }
+      return addV([xx,Y,Z]);});
+    const iy=p.iw/2+W,iz=p.id/2+W,oy=iy+p.fl,oz=iz+p.fl;
+    const of=ring(oy,oz,p.fr+p.fl,0,false),ob=ring(oy,oz,p.fr+p.fl,-p.fth,true),
+          iff=ring(iy,iz,p.cr+W,0,false),ib=ring(iy,iz,p.cr+W,-p.fth,true);
+    for(let k=0;k<N;k++){const k2=(k+1)%N;
+      quad(of[k],of[k2],iff[k2],iff[k]);quad(ob[k],ib[k],ib[k2],ob[k2]);
+      quad(ob[k],ob[k2],of[k2],of[k]);quad(ib[k],iff[k],iff[k2],ib[k2]);}
+  }
+  // 호스 비드
+  if(p.beadT>0){
+    const f=st[L-1],C=f.C,U=f.U,Vv=f.V,Ta=nrm(crs(U,Vv)),Cc=sub(C,scl(Ta,4));
+    const ri=p.od/2+W,ro=ri+p.beadT;
+    const ring=(rr,al)=>{const base=add(Cc,scl(Ta,al));return th.map(t=>{const d=[Math.cos(t),Math.sin(t)];
+      return addV([base[0]+rr*(d[0]*U[0]+d[1]*Vv[0]),base[1]+rr*(d[0]*U[1]+d[1]*Vv[1]),base[2]+rr*(d[0]*U[2]+d[1]*Vv[2])]);});};
+    const bi=ring(ri,-p.beadH/2),bo=ring(ro,-p.beadH/2),ti=ring(ri,p.beadH/2),to=ring(ro,p.beadH/2);
+    for(let k=0;k<N;k++){const k2=(k+1)%N;
+      quad(bo[k],bo[k2],to[k2],to[k]);quad(bi[k],ti[k],ti[k2],bi[k2]);
+      quad(bi[k],bi[k2],bo[k2],bo[k]);quad(ti[k],to[k],to[k2],ti[k2]);}
+  }
+  // 토출 외부 수나사 (나선 튜브)
+  if(p.threadOn){
+    const f=st[L-1],U=f.U,Vv=f.V,Ta=nrm(crs(U,Vv));
+    const Cend=f.C,Cstart=sub(Cend,scl(Ta,p.lo)),rr=p.od/2+W;
+    const dphi=2*Math.PI/p.pitch, s1=p.lo-p.thrMargin, s0=Math.max(p.thrMargin,s1-p.thrLen), len=s1-s0;
+    const steps=Math.max(8,Math.round(len/p.pitch*24)),Mr=10;
+    for(let k=0;k<p.starts;k++){
+      const ph0=2*Math.PI*k/p.starts,rings=[],cen=[];
+      for(let i=0;i<=steps;i++){
+        const s=s0+len*i/steps,phi=dphi*s+ph0,cp=Math.cos(phi),sp=Math.sin(phi);
+        const rad=[cp*U[0]+sp*Vv[0],cp*U[1]+sp*Vv[1],cp*U[2]+sp*Vv[2]];
+        const H=[Cstart[0]+s*Ta[0]+rr*rad[0],Cstart[1]+s*Ta[1]+rr*rad[1],Cstart[2]+s*Ta[2]+rr*rad[2]];
+        const dr=[-sp*U[0]+cp*Vv[0],-sp*U[1]+cp*Vv[1],-sp*U[2]+cp*Vv[2]];
+        const Th=nrm([Ta[0]+rr*dphi*dr[0],Ta[1]+rr*dphi*dr[1],Ta[2]+rr*dphi*dr[2]]);
+        const n1=nrm(sub(rad,scl(Th,dot(rad,Th)))),n2=crs(Th,n1),ring=[];
+        for(let j=0;j<Mr;j++){const psi=2*Math.PI*j/Mr,c2=Math.cos(psi),s2=Math.sin(psi);
+          ring.push(addV([H[0]+p.thrRound*(c2*n1[0]+s2*n2[0]),H[1]+p.thrRound*(c2*n1[1]+s2*n2[1]),H[2]+p.thrRound*(c2*n1[2]+s2*n2[2])]));}
+        rings.push(ring);cen.push(H);
+      }
+      for(let i=0;i<rings.length-1;i++)for(let j=0;j<Mr;j++){const j2=(j+1)%Mr;
+        quad(rings[i][j],rings[i][j2],rings[i+1][j2],rings[i+1][j]);}
+      const c0=addV(cen[0]),cN=addV(cen[cen.length-1]);
+      for(let j=0;j<Mr;j++){const j2=(j+1)%Mr;
+        T.push([c0,rings[0][j2],rings[0][j]]);T.push([cN,rings[rings.length-1][j],rings[rings.length-1][j2]]);}
+    }
+  }
+
+  let mn=[1e9,1e9,1e9],mx=[-1e9,-1e9,-1e9];
+  for(const v of Vt)for(let j=0;j<3;j++){if(v[j]<mn[j])mn[j]=v[j];if(v[j]>mx[j])mx[j]=v[j];}
+  const ctr=[(mn[0]+mx[0])/2,(mn[1]+mx[1])/2,(mn[2]+mx[2])/2],size=[mx[0]-mn[0],mx[1]-mn[1],mx[2]-mn[2]];
+  const pos=new Float32Array(T.length*9),nml=new Float32Array(T.length*9);
+  for(let fi=0;fi<T.length;fi++){const[a,b,c]=T[fi],A=Vt[a],B=Vt[b],C=Vt[c];
+    let n=crs(sub(B,A),sub(C,A));const l=Math.hypot(n[0],n[1],n[2])||1;n=[n[0]/l,n[1]/l,n[2]/l];
+    const tri=[A,B,C];for(let j=0;j<3;j++){const o=fi*9+j*3;
+      pos[o]=tri[j][0];pos[o+1]=tri[j][1];pos[o+2]=tri[j][2];nml[o]=n[0];nml[o+1]=n[1];nml[o+2]=n[2];}}
+  return{pos,nrm:nml,tris:T,verts:Vt,ctr,size};
+}
+
+// ============================================================================
+// 2. WebGL 렌더러
+// ============================================================================
+const cv=document.getElementById("cv");
+const gl=cv.getContext("webgl",{antialias:true,alpha:false});
+const VS=`attribute vec3 aPos;attribute vec3 aNrm;uniform mat4 uMVP;uniform mat4 uModel;
+varying vec3 vN;void main(){vN=mat3(uModel)*aNrm;gl_Position=uMVP*vec4(aPos,1.0);}`;
+const FS=`precision mediump float;varying vec3 vN;uniform vec3 uColor;uniform bool uWire;
+void main(){vec3 N=normalize(vN);
+  float d=max(dot(N,normalize(vec3(0.4,0.8,0.6))),0.0);
+  float d2=max(dot(N,normalize(vec3(-0.5,-0.2,-0.7))),0.0)*0.35;
+  vec3 col=uWire?vec3(0.22,0.74,0.97):uColor;gl_FragColor=vec4(col*(0.30+d*0.85+d2),1.0);}`;
+function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);
+  if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o;}
+const prog=gl.createProgram();gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));
+gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(prog);gl.useProgram(prog);
+const aPos=gl.getAttribLocation(prog,"aPos"),aNrm=gl.getAttribLocation(prog,"aNrm");
+const uMVP=gl.getUniformLocation(prog,"uMVP"),uModel=gl.getUniformLocation(prog,"uModel");
+const uColor=gl.getUniformLocation(prog,"uColor"),uWire=gl.getUniformLocation(prog,"uWire");
+const bufP=gl.createBuffer(),bufN=gl.createBuffer();gl.enable(gl.DEPTH_TEST);
+let MESH=null,triCount=0;
+function upload(m){MESH=m;triCount=m.pos.length/3;
+  gl.bindBuffer(gl.ARRAY_BUFFER,bufP);gl.bufferData(gl.ARRAY_BUFFER,m.pos,gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER,bufN);gl.bufferData(gl.ARRAY_BUFFER,m.nrm,gl.STATIC_DRAW);}
+const M4={persp(f,a,n,fa){const t=1/Math.tan(f/2);return[t/a,0,0,0,0,t,0,0,0,0,(fa+n)/(n-fa),-1,0,0,2*fa*n/(n-fa),0];},
+  mul(a,b){const o=new Array(16);for(let r=0;r<4;r++)for(let c=0;c<4;c++){let s=0;
+    for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s;}return o;},ident(){return[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];}};
+function lookAt(eye,ctr,up){const z=nrm(sub(eye,ctr)),x=nrm(crs(up,z)),y=crs(z,x);
+  return[x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-dot(x,eye),-dot(y,eye),-dot(z,eye),1];}
+let yaw=0.8,pitch=-0.25,dist=420,panx=0,pany=0,spin=true,cutaway=false,wire=false;
+function autoFrame(){dist=Math.max(...MESH.size)*1.9+120;}
+function render(){
+  const w=cv.clientWidth,h=cv.clientHeight,dpr=Math.min(devicePixelRatio||1,2);
+  if(cv.width!==w*dpr||cv.height!==h*dpr){cv.width=w*dpr;cv.height=h*dpr;}
+  gl.viewport(0,0,cv.width,cv.height);
+  gl.clearColor(0.059,0.071,0.086,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  if(!MESH){requestAnimationFrame(render);return;}
+  if(spin)yaw+=0.006;
+  const tgt=[MESH.ctr[0]+panx,MESH.ctr[1]+pany,MESH.ctr[2]];   // Z(세로)를 위로
+  const eye=[tgt[0]+Math.cos(pitch)*Math.sin(yaw)*dist,tgt[1]+Math.cos(pitch)*Math.cos(yaw)*dist,tgt[2]+Math.sin(pitch)*dist];
+  const mvp=M4.mul(M4.persp(0.9,(w/h)||1,1,6000),lookAt(eye,tgt,[0,0,1]));
+  gl.useProgram(prog);gl.uniformMatrix4fv(uMVP,false,new Float32Array(mvp));
+  gl.uniformMatrix4fv(uModel,false,new Float32Array(M4.ident()));
+  gl.uniform3fv(uColor,[0.80,0.82,0.86]);gl.uniform1i(uWire,wire?1:0);
+  gl.bindBuffer(gl.ARRAY_BUFFER,bufP);gl.enableVertexAttribArray(aPos);gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER,bufN);gl.enableVertexAttribArray(aNrm);gl.vertexAttribPointer(aNrm,3,gl.FLOAT,false,0,0);
+  if(cutaway){gl.enable(gl.SCISSOR_TEST);gl.scissor(0,0,Math.floor(cv.width/2),cv.height);}else gl.disable(gl.SCISSOR_TEST);
+  if(wire){for(let i=0;i<triCount;i+=3)gl.drawArrays(gl.LINE_LOOP,i,3);}else gl.drawArrays(gl.TRIANGLES,0,triCount);
+  gl.disable(gl.SCISSOR_TEST);requestAnimationFrame(render);
+}
+let drag=null,lx=0,ly=0;
+cv.addEventListener("mousedown",e=>{drag=e.button===2?"pan":"orb";lx=e.clientX;ly=e.clientY;spin=false;document.getElementById("c_spin").checked=false;});
+window.addEventListener("mouseup",()=>drag=null);
+window.addEventListener("mousemove",e=>{if(!drag)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;
+  if(drag==="orb"){yaw-=dx*0.008;pitch=Math.max(-1.4,Math.min(1.4,pitch-dy*0.008));}else{panx-=dx*0.6;pany+=dy*0.6;}});
+cv.addEventListener("wheel",e=>{e.preventDefault();dist=Math.max(120,Math.min(2500,dist*(1+Math.sign(e.deltaY)*0.08)));},{passive:false});
+cv.addEventListener("contextmenu",e=>e.preventDefault());
+
+// STL 내보내기
+function exportSTL(){
+  const V=MESH.verts,T=MESH.tris,buf=new ArrayBuffer(84+T.length*50),dv=new DataView(buf);
+  let o=84;dv.setUint32(80,T.length,true);
+  for(const[a,b,c] of T){const A=V[a],B=V[b],C=V[c];let n=crs(sub(B,A),sub(C,A));const l=Math.hypot(n[0],n[1],n[2])||1;
+    dv.setFloat32(o,n[0]/l,true);dv.setFloat32(o+4,n[1]/l,true);dv.setFloat32(o+8,n[2]/l,true);o+=12;
+    for(const q of[A,B,C]){dv.setFloat32(o,q[0],true);dv.setFloat32(o+4,q[1],true);dv.setFloat32(o+8,q[2],true);o+=12;}
+    dv.setUint16(o,0,true);o+=2;}
+  const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([buf],{type:"model/stl"}));
+  a.download=`cold_air_duct_${P.iw}x${P.id}_R${P.cr}_D${P.od}_${P.bd}deg.stl`;a.click();URL.revokeObjectURL(a.href);
+}
+
+// UI
+function rebuild(keepframe){
+  const m=buildMesh(P);upload(m);if(!keepframe)autoFrame();
+  document.getElementById("d_in").textContent=`${P.iw} × ${P.id}`;
+  document.getElementById("d_cr").textContent=P.cr;
+  document.getElementById("d_out").textContent=P.od;
+  document.getElementById("d_cr2").textContent=(P.od+2*P.wl+2*P.thrRound).toFixed(0);
+  document.getElementById("d_bd").textContent=P.bd;
+  document.getElementById("d_r").textContent=P.br;
+  const s=m.size;document.getElementById("d_bb").innerHTML=
+    `${Math.round(s[0])} × ${Math.round(s[1])} × ${Math.round(s[2])}`+(Math.max(...s)>256?' <span id="warn">(대형!)</span>':'');
+}
+const bind=(id,key,fmt)=>{const el=document.getElementById(id),out=document.getElementById(id.replace("p_","v_"));
+  el.addEventListener("input",()=>{P[key]=parseFloat(el.value);out.textContent=fmt?fmt(el.value):el.value;rebuild(true);});};
+["iw","id","cr","li","bd","br","od","lo","fl","mr"].forEach(k=>bind("p_"+k,k));
+bind("p_wl","wl",v=>(+v).toFixed(1));
+document.getElementById("c_cut").addEventListener("change",e=>cutaway=e.target.checked);
+document.getElementById("c_wire").addEventListener("change",e=>wire=e.target.checked);
+document.getElementById("c_spin").addEventListener("change",e=>spin=e.target.checked);
+document.getElementById("b_stl").addEventListener("click",exportSTL);
+document.getElementById("b_reset").addEventListener("click",()=>{Object.assign(P,DEF);
+  ["iw","id","cr","li","bd","br","od","lo","fl","mr","wl"].forEach(k=>{const el=document.getElementById("p_"+k);el.value=DEF[k];
+    document.getElementById("v_"+k).textContent=k==="wl"?DEF[k].toFixed(1):DEF[k];});rebuild();});
+rebuild();render();
+</script>
+</body>
+</html>
