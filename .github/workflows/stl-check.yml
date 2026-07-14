@@ -1,0 +1,32 @@
+name: STL fuse/manifold check
+
+# STL 이 push/PR 될 때마다 "단일 watertight manifold 솔리드" 규칙을 자동 강제한다.
+# (면·원통이 fuse 안 된 분리 바디 / non-manifold seam STL 유입 차단)
+on:
+  pull_request:
+    paths: ["**/*.stl"]
+  push:
+    paths: ["**/*.stl"]
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install --quiet numpy trimesh manifold3d scipy
+
+      - name: Validate all STL files
+        run: |
+          shopt -s globstar nullglob
+          files=(**/*.stl)
+          if [ ${#files[@]} -eq 0 ]; then
+            echo "검사할 STL 없음"; exit 0
+          fi
+          echo "검사 대상: ${files[*]}"
+          python3 tools/check_stl.py "${files[@]}"
