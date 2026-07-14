@@ -2,9 +2,9 @@
 //  신일 창문형 에어컨 냉기 유도 덕트 — 측면도 기준 상향 벤드 (모서리 R)
 //  ------------------------------------------------------------------------
 //  사각(모서리 라운드) 140x80 흡입면을 에어컨 토출면(수직)에 밀착 →
-//  큰 반경으로 냉기를 위로 말아 올려 → Ø148 원통 토출.
+//  큰 반경으로 냉기를 90° 옆(수평)으로 꺾어 → Ø148 원통(연장) 토출.
 //
-//  좌표계: 흡입면 = x=0 (YZ). 냉기 +X 유입 → 벤드 → +Z(위) 토출.
+//  좌표계: 흡입면 = x=0 (YZ). 냉기 +X 유입 → 벤드(X-Y 평면) → +Y(수평 옆) 토출.
 //  OpenSCAD 에서 F6 렌더 후 File > Export > STL.
 //
 //  ※ 정밀/양산용 수밀 STL 은 generate_stl.py(둥근사각 SDF 정확) 산출물을 권장.
@@ -18,10 +18,10 @@ corner_n  = 4.0;   // 모서리 라운드 정도 (2=타원, 클수록 각짐; 3.
 lip_in    = 26;    // 흡입 직선 스냅(+X)
 
 /* [ 벤드 / 토출 ] */
-bend_deg  = 90;    // 벤드 각 (90=상향 L, 180=U)
+bend_deg  = 90;    // 벤드 각 (90=옆으로 수평, 180=반대편)
 bend_r    = 90;    // 벤드 중심선 반경(큰 라운드)
 outlet_d  = 148;   // 원통 토출 지름 Ø148
-lip_out   = 32;    // 토출 직선 칼라
+lip_out   = 42;    // 토출 직선 칼라 (기존 32 → +30%)
 
 /* [ 벽 / 플랜지 ] */
 wall      = 2.6;   // 벽 두께
@@ -56,19 +56,20 @@ function ss(t) = t*t*(3-2*t);
 
 // 한 스테이션(직선/아크) 위치·회전으로 슬라이스 배치
 //  seg: "in" 흡입직선 / "arc" 벤드 / "out" 토출직선
+// 벤드 평면 = X-Y(수평). 토출은 옆(+Y) 방향.
 module place(seg, u) {   // u: 0..1 구간 파라미터
     if (seg == "in") {
         translate([lip_in*u, 0, 0]) rotate([0,90,0]) children();
     } else if (seg == "arc") {
         a = bend_deg*u;
-        translate([lip_in + bend_r*sin(a), 0, bend_r*(1-cos(a))])
-            rotate([0, 90-a, 0]) children();
+        translate([lip_in + bend_r*sin(a), bend_r*(1-cos(a)), 0])
+            rotate([0,0,a]) rotate([0,90,0]) children();
     } else { // out
         a = bend_deg;
         translate([lip_in + bend_r*sin(a) + lip_out*u*cos(a),
-                   0,
-                   bend_r*(1-cos(a)) + lip_out*u*sin(a)])
-            rotate([0, 90-a, 0]) children();
+                   bend_r*(1-cos(a)) + lip_out*u*sin(a),
+                   0])
+            rotate([0,0,a]) rotate([0,90,0]) children();
     }
 }
 
@@ -122,9 +123,9 @@ module bead_ring() {
     if (bead > 0) {
         a = bend_deg;
         translate([lip_in + bend_r*sin(a) + (lip_out-4)*cos(a),
-                   0,
-                   bend_r*(1-cos(a)) + (lip_out-4)*sin(a)])
-            rotate([0, 90-a, 0])
+                   bend_r*(1-cos(a)) + (lip_out-4)*sin(a),
+                   0])
+            rotate([0,0,a]) rotate([0,90,0])
                 rotate_extrude($fn=N)
                     translate([rC+wall, 0]) polygon([[0,-2],[bead,-1],[bead,1],[0,2]]);
     }

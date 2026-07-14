@@ -46,15 +46,15 @@
     <div id="dims">
       <div><span class="tag">흡입</span><b id="d_in">140 × 80</b> mm (모서리 R<b id="d_cr">20</b>)</div>
       <div><span class="tag">토출</span>Ø<b id="d_out">148</b> mm 원통</div>
-      <div><span class="tag">벤드</span><b id="d_bd">90</b>° 상향 · R<b id="d_r">90</b></div>
+      <div><span class="tag">벤드</span><b id="d_bd">90</b>° 수평(옆) · R<b id="d_r">90</b></div>
       <div><span class="tag">외형</span><b id="d_bb">— × — × —</b> mm</div>
     </div>
     <div id="hint">드래그=회전 · 휠=확대 · 우클릭드래그=이동</div>
   </div>
   <div id="panel">
     <h1>냉기 유도 덕트 (모서리 R)</h1>
-    <p class="sub">측면도 기준: 사각(140×80, 모서리 라운드) 흡입면을 에어컨 토출면에 수직으로
-      밀착 → 큰 반경으로 냉기를 위로 말아 올려 → Ø148 원통 토출.</p>
+    <p class="sub">사각(140×80, 모서리 라운드) 흡입면을 에어컨 토출면에 수직으로 밀착 →
+      큰 반경으로 냉기를 90° 옆(수평)으로 꺾어 → Ø148 원통(연장) 토출.</p>
 
     <div class="grp"><h2>흡입구 (둥근 사각)</h2>
       <label class="row"><span>가로</span><input id="p_iw" type="range" min="80" max="220" step="1" value="140"><span class="val" id="v_iw">140</span></label>
@@ -66,7 +66,7 @@
       <label class="row"><span>벤드각°</span><input id="p_bd" type="range" min="45" max="180" step="5" value="90"><span class="val" id="v_bd">90</span></label>
       <label class="row"><span>벤드 R</span><input id="p_br" type="range" min="60" max="150" step="1" value="90"><span class="val" id="v_br">90</span></label>
       <label class="row"><span>토출 Ø</span><input id="p_od" type="range" min="80" max="180" step="1" value="148"><span class="val" id="v_od">148</span></label>
-      <label class="row"><span>토출 칼라</span><input id="p_lo" type="range" min="0" max="70" step="1" value="32"><span class="val" id="v_lo">32</span></label>
+      <label class="row"><span>토출 칼라</span><input id="p_lo" type="range" min="0" max="80" step="1" value="42"><span class="val" id="v_lo">42</span></label>
     </div>
     <div class="grp"><h2>벽 / 플랜지</h2>
       <label class="row"><span>벽 두께</span><input id="p_wl" type="range" min="1.6" max="4" step="0.1" value="2.6"><span class="val" id="v_wl">2.6</span></label>
@@ -93,7 +93,7 @@
 // ============================================================================
 // 0. 파라미터 (generate_stl.py 와 동일 개념)
 // ============================================================================
-const P = { iw:140, id:80, cr:20, od:148, bd:90, br:90, li:26, lo:32, wl:2.6, fl:14,
+const P = { iw:140, id:80, cr:20, od:148, bd:90, br:90, li:26, lo:42, wl:2.6, fl:14,
             fth:3, fr:10, beadT:1.6, beadH:3, N:128, bendSteps:64, lipSteps:5 };
 const DEF = Object.assign({}, P);
 
@@ -119,10 +119,10 @@ const ss=t=>t*t*(3-2*t);
 // 1. 스위프 메시 (측면도 상향 벤드 + 모서리 R)
 // ============================================================================
 function stations(p){
-  const V=[0,1,0],st=[],bend=p.bd*Math.PI/180,R=p.br;
+  const V=[0,0,1],st=[],bend=p.bd*Math.PI/180,R=p.br;   // 벤드 평면 X-Y(수평)
   const frame=(C,T)=>({C,U:nrm(crs(V,nrm(T))),V});
-  const arcC=a=>[p.li+R*Math.sin(a),0,R*(1-Math.cos(a))];
-  const arcT=a=>[Math.cos(a),0,Math.sin(a)];
+  const arcC=a=>[p.li+R*Math.sin(a),R*(1-Math.cos(a)),0];
+  const arcT=a=>[Math.cos(a),Math.sin(a),0];
   for(let i=0;i<=p.lipSteps;i++){const f=frame([p.li*i/p.lipSteps,0,0],[1,0,0]);f.m=0;st.push(f);}
   for(let i=1;i<=p.bendSteps;i++){const a=bend*i/p.bendSteps;const f=frame(arcC(a),arcT(a));f.m=ss(i/p.bendSteps);st.push(f);}
   const Te=arcT(bend),Ce=arcC(bend);
@@ -130,7 +130,7 @@ function stations(p){
   return st;
 }
 function prof3d(f,th,off,p){
-  const [pu,pv]=profPt(th,f.m,p.id/2+off,p.iw/2+off,p.cr+off,p.od/2+off);
+  const [pu,pv]=profPt(th,f.m,p.iw/2+off,p.id/2+off,p.cr+off,p.od/2+off);
   const C=f.C,U=f.U,Vv=f.V;
   return[C[0]+pu*U[0]+pv*Vv[0],C[1]+pu*U[1]+pv*Vv[1],C[2]+pu*U[2]+pv*Vv[2]];
 }

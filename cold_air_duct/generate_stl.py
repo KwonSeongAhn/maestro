@@ -8,8 +8,9 @@
             큰 라운드 코너로 부드럽게 꺾여 위로 뻗는 목 = 원통 토출.
   - 모든 모서리에 R(필렛): 단면 사각 모서리 + 벤드 + 플랜지 외곽.
 
-좌표계: 에어컨 토출면 = x=0 (YZ). 냉기 +X 유입 → 벤드 → +Z(위) 토출.
-        Y = 가로(140), Z = 세로(80, 벤드 평면 내).
+좌표계: 에어컨 토출면 = x=0 (YZ). 냉기 +X 유입 → 벤드 → +Y(수평 옆) 토출.
+        Y = 가로(140, 벤드 평면 내), Z = 세로(80, 평면 밖=수직).
+        ※ 원통 토출을 위(+Z)에서 90° 돌려 수평(+Y)으로 배출.
 
 의존성 없는 순수 파이썬 STL(바이너리) 생성 + 수밀 자동 검증.
   python3 generate_stl.py   ->  cold_air_duct.stl
@@ -21,14 +22,14 @@ import struct
 # ----------------------------------------------------------------------------
 # 파라미터 (mm)
 # ----------------------------------------------------------------------------
-INLET_W    = 140.0   # 사각 흡입구 가로 (수평, Y)
-INLET_D    = 80.0    # 사각 흡입구 세로 (수직, Z, 벤드 평면 내)
+INLET_W    = 140.0   # 사각 흡입구 가로 (수평, Y, 벤드 평면 내)
+INLET_D    = 80.0    # 사각 흡입구 세로 (수직, Z, 평면 밖)
 CORNER_R   = 20.0    # ★ 단면 사각 모서리 라운드 반경 (모서리 R)
 OUTLET_DIA = 148.0   # 원통 토출 지름 (Ø148)
-BEND_DEG   = 90.0    # 벤드 각도 (90=상향 L, 180=U)
+BEND_DEG   = 90.0    # 벤드 각도 (90=옆으로 수평, 180=반대편)
 BEND_R     = 90.0    # ★ 벤드 중심선 반경 (큰 라운드 코너)
 LIP_IN     = 26.0    # 사각 흡입 직선 스냅(+X)
-LIP_OUT    = 32.0    # 원통 토출 직선 칼라
+LIP_OUT    = 42.0    # 원통 토출 직선 칼라 (기존 32 → +30%)
 WALL       = 2.6     # 벽 두께
 FLANGE     = 14.0    # 흡입 수직 플랜지 폭 (0=없음)
 FLANGE_TH  = 3.0     # 플랜지 두께(X)
@@ -41,8 +42,11 @@ LIP_STEPS  = 5       # 직선 립 분할
 
 OUT_PATH = "cold_air_duct.stl"
 
-HU = INLET_D / 2.0   # U-반치수(세로 80, 벤드 평면 내)
-HV = INLET_W / 2.0   # V-반치수(가로 140, 평면 밖)
+# 벤드 평면 = X-Y(수평).  U=면내(입구에서 Y, 가로140),  V=면밖(Z, 세로80)
+HU = INLET_W / 2.0   # U-반치수(가로 140, 벤드 평면 내)
+HV = INLET_D / 2.0   # V-반치수(세로 80, 평면 밖=수직)
+YH = INLET_W / 2.0   # 플랜지 Y(가로)-반치수
+ZH = INLET_D / 2.0   # 플랜지 Z(세로)-반치수
 R  = OUTLET_DIA / 2.0
 
 # ----------------------------------------------------------------------------
@@ -92,13 +96,13 @@ def ss(t): return t*t*(3-2*t)
 # 중심선 스테이션 프레임: V=(0,1,0)(평면밖), U=norm(cross(V,T))
 # ----------------------------------------------------------------------------
 def build_stations():
-    V = (0.0, 1.0, 0.0)
+    V = (0.0, 0.0, 1.0)                    # 평면 밖 축(Z, 세로80) — 벤드는 X-Y 평면
     st = []
     bend = math.radians(BEND_DEG)
 
     def frame(C, T): return {"C": C, "U": norm(cross(V, norm(T))), "V": V}
-    def arc_C(a): return (LIP_IN + BEND_R*math.sin(a), 0.0, BEND_R*(1-math.cos(a)))
-    def arc_T(a): return (math.cos(a), 0.0, math.sin(a))
+    def arc_C(a): return (LIP_IN + BEND_R*math.sin(a), BEND_R*(1-math.cos(a)), 0.0)
+    def arc_T(a): return (math.cos(a), math.sin(a), 0.0)
 
     for i in range(LIP_STEPS + 1):            # 흡입 직선 스냅 x:0→LIP_IN
         x = LIP_IN * i / LIP_STEPS
@@ -160,10 +164,9 @@ def build_flange(mesh, st):
             rr = rrect_radius(th, hu, hv, rc)
             out.append(mesh.add_v((x, rr*math.cos(th), rr*math.sin(th))))
         return out
-    # 로컬 (U=Z세로, V=Y가로) 이지만 여기선 (y=가로, z=세로)로 직접:
-    # rrect_radius 는 (hu,hv)=(가로반, 세로반) 순으로 x=cos→가로(Y), y=sin→세로(Z)
-    iy, iz = HV+WALL, HU+WALL          # 구멍 = 스커트 외곽 (가로반, 세로반)
-    oy, oz = HV+WALL+FLANGE, HU+WALL+FLANGE
+    # 플랜지는 YZ평면.  rrect_radius(hu,hv): x=cos→Y(가로), y=sin→Z(세로)
+    iy, iz = YH+WALL, ZH+WALL          # 구멍 = 스커트 외곽 (Y가로반, Z세로반)
+    oy, oz = YH+WALL+FLANGE, ZH+WALL+FLANGE
     of = ring(oy, oz, FLANGE_R+FLANGE, x1); ob = ring(oy, oz, FLANGE_R+FLANGE, x0)
     iff = ring(iy, iz, CORNER_R+WALL, x1);  ib = ring(iy, iz, CORNER_R+WALL, x0)
     for k in range(N):
@@ -240,7 +243,7 @@ def main():
     bad, unmatched, ne = check_watertight(mesh)
     write_stl(mesh, OUT_PATH)
     bx, by, bz = bbox(mesh)
-    print(f"[형상] {BEND_DEG:.0f}° 상향 벤드, 흡입 {INLET_W:.0f}x{INLET_D:.0f}(모서리R{CORNER_R:.0f}) → Ø{OUTLET_DIA:.0f}")
+    print(f"[형상] {BEND_DEG:.0f}° 수평(옆) 벤드, 흡입 {INLET_W:.0f}x{INLET_D:.0f}(모서리R{CORNER_R:.0f}) → Ø{OUTLET_DIA:.0f} 원통(칼라 {LIP_OUT:.0f})")
     print(f"[벤드] 중심선 R={BEND_R:.0f}, 흡입립 {LIP_IN:.0f}, 토출칼라 {LIP_OUT:.0f}, 벽 {WALL}")
     print(f"[외형] 약 {bx:.0f} x {by:.0f} x {bz:.0f} mm  (X x Y x Z)")
     print(f"[메시] 정점 {len(mesh.v)}, 삼각형 {len(mesh.t)}")
