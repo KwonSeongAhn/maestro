@@ -71,6 +71,7 @@
     <div class="grp"><h2>벽 / 플랜지</h2>
       <label class="row"><span>벽 두께</span><input id="p_wl" type="range" min="1.6" max="4" step="0.1" value="2.6"><span class="val" id="v_wl">2.6</span></label>
       <label class="row"><span>플랜지</span><input id="p_fl" type="range" min="0" max="25" step="1" value="14"><span class="val" id="v_fl">14</span></label>
+      <label class="row"><span>접촉R(세로)</span><input id="p_mr" type="range" min="0" max="600" step="10" value="250"><span class="val" id="v_mr">250</span></label>
     </div>
     <div class="grp"><h2>보기</h2>
       <label class="chk"><input type="checkbox" id="c_cut"> 단면 절개(내부 확인)</label>
@@ -94,7 +95,7 @@
 // 0. 파라미터 (generate_stl.py 와 동일 개념)
 // ============================================================================
 const P = { iw:140, id:80, cr:20, od:142, bd:90, br:80, li:8, lo:46, wl:2.6, fl:14,
-            fth:3, fr:10, beadT:0, beadH:3, N:128, bendSteps:64, lipSteps:5,
+            fth:3, fr:10, mr:250, mstart:0.3333, beadT:0, beadH:3, N:128, bendSteps:64, lipSteps:5,
             threadOn:true, hoseDia:150, pitch:15, thrRound:2.0, starts:2, thrMargin:3 };
 const DEF = Object.assign({}, P);
 
@@ -151,11 +152,16 @@ function buildMesh(p){
 
   // 수직 플랜지 (둥근사각 프레임)
   if(p.fl>0){
-    const ring=(hu,hv,rc,x)=>th.map(t=>{const rr=rrectR(t,hu,hv,rc);
-      return addV([x,rr*Math.cos(t),rr*Math.sin(t)]);});
+    const ring=(hu,hv,rc,x,curve)=>th.map(t=>{const rr=rrectR(t,hu,hv,rc);
+      const Y=rr*Math.cos(t),Z=rr*Math.sin(t);let xx=x;
+      if(curve&&p.mr>0){                       // 수직(세로) 곡면, 아래 1/3 지점부터
+        const ozf=p.id/2+W+p.fl, zst=-ozf+2*ozf*p.mstart;
+        if(Z>zst){const d=Z-zst,sag=d<p.mr?p.mr-Math.sqrt(p.mr*p.mr-d*d):p.mr;xx=x-sag;}
+      }
+      return addV([xx,Y,Z]);});
     const iy=p.iw/2+W,iz=p.id/2+W,oy=iy+p.fl,oz=iz+p.fl;
-    const of=ring(oy,oz,p.fr+p.fl,0),ob=ring(oy,oz,p.fr+p.fl,-p.fth),
-          iff=ring(iy,iz,p.cr+W,0),ib=ring(iy,iz,p.cr+W,-p.fth);
+    const of=ring(oy,oz,p.fr+p.fl,0,false),ob=ring(oy,oz,p.fr+p.fl,-p.fth,true),
+          iff=ring(iy,iz,p.cr+W,0,false),ib=ring(iy,iz,p.cr+W,-p.fth,true);
     for(let k=0;k<N;k++){const k2=(k+1)%N;
       quad(of[k],of[k2],iff[k2],iff[k]);quad(ob[k],ib[k],ib[k2],ob[k2]);
       quad(ob[k],ob[k2],of[k2],of[k]);quad(ib[k],iff[k],iff[k2],ib[k2]);}
@@ -247,9 +253,9 @@ function render(){
   gl.clearColor(0.059,0.071,0.086,1);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   if(!MESH){requestAnimationFrame(render);return;}
   if(spin)yaw+=0.006;
-  const tgt=[MESH.ctr[0]+panx,MESH.ctr[1]+pany,MESH.ctr[2]];
-  const eye=[tgt[0]+Math.cos(pitch)*Math.sin(yaw)*dist,tgt[1]+Math.sin(pitch)*dist,tgt[2]+Math.cos(pitch)*Math.cos(yaw)*dist];
-  const mvp=M4.mul(M4.persp(0.9,(w/h)||1,1,6000),lookAt(eye,tgt,[0,1,0]));
+  const tgt=[MESH.ctr[0]+panx,MESH.ctr[1]+pany,MESH.ctr[2]];   // Z(세로)를 위로
+  const eye=[tgt[0]+Math.cos(pitch)*Math.sin(yaw)*dist,tgt[1]+Math.cos(pitch)*Math.cos(yaw)*dist,tgt[2]+Math.sin(pitch)*dist];
+  const mvp=M4.mul(M4.persp(0.9,(w/h)||1,1,6000),lookAt(eye,tgt,[0,0,1]));
   gl.useProgram(prog);gl.uniformMatrix4fv(uMVP,false,new Float32Array(mvp));
   gl.uniformMatrix4fv(uModel,false,new Float32Array(M4.ident()));
   gl.uniform3fv(uColor,[0.80,0.82,0.86]);gl.uniform1i(uWire,wire?1:0);
@@ -293,14 +299,14 @@ function rebuild(keepframe){
 }
 const bind=(id,key,fmt)=>{const el=document.getElementById(id),out=document.getElementById(id.replace("p_","v_"));
   el.addEventListener("input",()=>{P[key]=parseFloat(el.value);out.textContent=fmt?fmt(el.value):el.value;rebuild(true);});};
-["iw","id","cr","li","bd","br","od","lo","fl"].forEach(k=>bind("p_"+k,k));
+["iw","id","cr","li","bd","br","od","lo","fl","mr"].forEach(k=>bind("p_"+k,k));
 bind("p_wl","wl",v=>(+v).toFixed(1));
 document.getElementById("c_cut").addEventListener("change",e=>cutaway=e.target.checked);
 document.getElementById("c_wire").addEventListener("change",e=>wire=e.target.checked);
 document.getElementById("c_spin").addEventListener("change",e=>spin=e.target.checked);
 document.getElementById("b_stl").addEventListener("click",exportSTL);
 document.getElementById("b_reset").addEventListener("click",()=>{Object.assign(P,DEF);
-  ["iw","id","cr","li","bd","br","od","lo","fl","wl"].forEach(k=>{const el=document.getElementById("p_"+k);el.value=DEF[k];
+  ["iw","id","cr","li","bd","br","od","lo","fl","mr","wl"].forEach(k=>{const el=document.getElementById("p_"+k);el.value=DEF[k];
     document.getElementById("v_"+k).textContent=k==="wl"?DEF[k].toFixed(1):DEF[k];});rebuild();});
 rebuild();render();
 </script>

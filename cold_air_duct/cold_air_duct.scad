@@ -38,6 +38,8 @@ flange_th = 3;     // 플랜지 두께(X)
 flange_r  = 10;    // 플랜지 외곽 라운드
 screw_d   = 4.5;   // 플랜지 나사 구멍 (0=없음)
 bead      = 0;     // 호스 이탈방지 비드(나사산으로 대체, 0=없음)
+mount_r    = 250;  // 접촉면 수직(세로) 곡률 반경 (0=평면)
+mount_start= 1/3;  // 세로 아래에서 이 비율 지점부터 곡면(그 아래 평면)
 
 /* [ 해상도 ] */
 N     = 120;       // 원주 분할
@@ -107,22 +109,44 @@ module duct_shell() {
     }
 }
 
+// 플랜지 외곽 2D (둥근 사각). extrude 평면 XY: x→세로(Z), y→가로(Y)
+module flange_outline() {
+    oy = b0+wall+flange; oz = a0+wall+flange;
+    offset(r=flange_r) offset(delta=-flange_r) square([2*oz, 2*oy], center=true);
+}
+
 module flange_plate() {
     if (flange > 0) {
         oy = b0+wall+flange; oz = a0+wall+flange;
+        z_start = -oz + 2*oz*mount_start;          // 아래에서 1/3 지점
+        dtop    = oz - z_start;
+        maxsag  = (mount_r>0) ? mount_r - sqrt(max(0, mount_r*mount_r - dtop*dtop)) : 0;
         difference() {
-            translate([-flange_th,0,0]) rotate([0,90,0])
-                linear_extrude(flange_th)
-                    offset(r=flange_r) offset(delta=-flange_r)
-                        square([2*oz, 2*oy], center=true);   // (z세로, y가로)
+            union() {
+                // 평판 (뒷면 x=-flange_th)
+                translate([-flange_th,0,0]) rotate([0,90,0])
+                    linear_extrude(flange_th) flange_outline();
+                // 수직 접촉 곡면 쐐기: z_start 위쪽 뒷면을 곡면까지 채움
+                if (mount_r > 0)
+                    difference() {
+                        intersection() {
+                            translate([-flange_th-maxsag,0,0]) rotate([0,90,0])
+                                linear_extrude(maxsag) flange_outline();
+                            translate([-500,-500,z_start]) cube([1000,1000,1000]); // Z>z_start
+                        }
+                        // 카빙 실린더(축=Y, z_start에서 평면에 접함, 반경 mount_r)
+                        translate([-flange_th-mount_r, 0, z_start])
+                            rotate([90,0,0]) cylinder(h=1000, r=mount_r, center=true, $fn=180);
+                    }
+            }
             // 구멍 = 흡입 외벽
-            translate([-flange_th-1,0,0]) rotate([0,90,0])
-                linear_extrude(flange_th+2) section(0, wall);
+            translate([-flange_th-maxsag-1,0,0]) rotate([0,90,0])
+                linear_extrude(flange_th+maxsag+2) section(0, wall);
             // 나사 구멍 4개
             if (screw_d > 0)
                 for (sy=[-1,1], sz=[-1,1])
-                    translate([-flange_th-1, sy*(oy-flange/2), sz*(oz-flange/2)])
-                        rotate([0,90,0]) cylinder(h=flange_th+2, d=screw_d, $fn=24);
+                    translate([-flange_th-maxsag-1, sy*(oy-flange/2), sz*(oz-flange/2)])
+                        rotate([0,90,0]) cylinder(h=flange_th+maxsag+2, d=screw_d, $fn=24);
         }
     }
 }

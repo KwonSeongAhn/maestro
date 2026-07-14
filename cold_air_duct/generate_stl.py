@@ -34,6 +34,8 @@ WALL       = 2.6     # 벽 두께
 FLANGE     = 14.0    # 흡입 수직 플랜지 폭 (0=없음)
 FLANGE_TH  = 3.0     # 플랜지 두께(X)
 FLANGE_R   = 10.0    # ★ 플랜지 외곽 모서리 라운드
+MOUNT_R    = 250.0   # ★ 에어컨 접촉면 곡률 반경(추정). 세로(수직) 방향 곡면. 0=평면
+MOUNT_START= 1.0/3   # ★ 세로 아래에서 이 비율 지점부터 곡면 시작(그 아래는 평면). 1/3
 BEAD_T     = 0.0     # 호스 이탈방지 비드(나사산으로 대체, 0=없음)
 BEAD_H     = 3.0     # 비드 높이(축)
 
@@ -169,17 +171,27 @@ def build_flange(mesh, st):
     if FLANGE <= 0: return
     x1, x0 = 0.0, -FLANGE_TH
     thetas = [2.0*math.pi*k/N for k in range(N)]
-    def ring(hu, hv, rc, x):
+    def ring(hu, hv, rc, x, curve=False):
         out = []
         for th in thetas:
             rr = rrect_radius(th, hu, hv, rc)
-            out.append(mesh.add_v((x, rr*math.cos(th), rr*math.sin(th))))
+            Y = rr*math.cos(th); Z = rr*math.sin(th)
+            xx = x
+            # 접촉면(뒷면) 수직(세로) 곡면: 축=수평(Y), 세로 아래 1/3 지점부터 뒤로 말림
+            if curve and MOUNT_R > 0:
+                oz_full = ZH + WALL + FLANGE
+                z_start = -oz_full + 2*oz_full*MOUNT_START   # 아래에서 1/3
+                if Z > z_start:
+                    d = Z - z_start
+                    sag = MOUNT_R - math.sqrt(max(0.0, MOUNT_R*MOUNT_R - d*d)) if d < MOUNT_R else MOUNT_R
+                    xx = x - sag
+            out.append(mesh.add_v((xx, Y, Z)))
         return out
     # 플랜지는 YZ평면.  rrect_radius(hu,hv): x=cos→Y(가로), y=sin→Z(세로)
     iy, iz = YH+WALL, ZH+WALL          # 구멍 = 스커트 외곽 (Y가로반, Z세로반)
     oy, oz = YH+WALL+FLANGE, ZH+WALL+FLANGE
-    of = ring(oy, oz, FLANGE_R+FLANGE, x1); ob = ring(oy, oz, FLANGE_R+FLANGE, x0)
-    iff = ring(iy, iz, CORNER_R+WALL, x1);  ib = ring(iy, iz, CORNER_R+WALL, x0)
+    of = ring(oy, oz, FLANGE_R+FLANGE, x1); ob = ring(oy, oz, FLANGE_R+FLANGE, x0, curve=True)
+    iff = ring(iy, iz, CORNER_R+WALL, x1);  ib = ring(iy, iz, CORNER_R+WALL, x0, curve=True)
     for k in range(N):
         k2 = (k+1) % N
         mesh.quad(of[k], of[k2], iff[k2], iff[k])   # 앞면
@@ -309,6 +321,11 @@ def main():
     crest = OUTLET_DIA + 2*WALL + 2*THREAD_ROUND
     print(f"[형상] {BEND_DEG:.0f}° 수평 벤드, 흡입 {INLET_W:.0f}x{INLET_D:.0f}(R{CORNER_R:.0f}) → Ø{OUTLET_DIA:.0f} 보어 원통")
     print(f"[나사] 외부 수나사 {THREAD_STARTS}줄, 피치 {THREAD_PITCH:.0f}, 마루 Ø{crest:.1f} (호스 Ø{HOSE_DIA:.0f} 체결)")
+    if MOUNT_R > 0:
+        oz_full = ZH+WALL+FLANGE
+        d_top = oz_full - (-oz_full + 2*oz_full*MOUNT_START)   # 상단까지 곡면 거리
+        sag = MOUNT_R - math.sqrt(max(0.0, MOUNT_R*MOUNT_R - d_top*d_top))
+        print(f"[접촉면] 수직 곡면 R={MOUNT_R:.0f}, 아래 {MOUNT_START*100:.0f}% 지점부터 곡면, 상단 새그 {sag:.1f}mm")
     print(f"[벤드] 중심선 R={BEND_R:.0f}, 흡입립 {LIP_IN:.0f}, 토출칼라 {LIP_OUT:.0f}, 벽 {WALL}")
     print(f"[외형] 약 {bx:.0f} x {by:.0f} x {bz:.0f} mm  (X x Y x Z)")
     print(f"[메시] 정점 {len(mesh.v)}, 삼각형 {len(mesh.t)}")
