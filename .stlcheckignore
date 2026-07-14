@@ -1,0 +1,7 @@
+# .stlcheckignore — STL 검증(tools/check_stl.py)에서 제외할 파일 (gitignore 스타일 glob)
+#
+# 규칙: 배포/산출되는 STL 은 반드시 "단일 watertight manifold" 검증을 통과해야 한다.
+# 단, 아래는 의도적으로 보관하는 "수리 전" 원본/레퍼런스 = 입력 아티팩트이므로 제외한다.
+# (deliverable 아님. 재현/비교용 before 샘플)
+
+cold_air_duct_repair/40b210d7-cold_air_duct.stl

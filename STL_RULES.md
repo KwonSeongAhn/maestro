@@ -42,6 +42,11 @@ python3 tools/check_stl.py --expect-genus <G> part.stl
 > 불량 신호: `watertight=False`, `non-manifold>0`, `bodies>1`, `genus<0`
 > 중 하나라도 뜨면 **fuse 누락** 이다.
 
+### 2.1 검사 제외 (레퍼런스/입력 아티팩트)
+"수리 전" 원본이나 비교용 before 샘플처럼 **의도적으로 보관하는 불량 STL** 은
+deliverable 이 아니므로 저장소 루트의 **`.stlcheckignore`** (gitignore 스타일
+glob)에 등록해 검사에서 제외한다. 산출/배포 STL 은 제외 금지 — 반드시 통과해야 한다.
+
 ## 3. 자동화 규칙 (강제)
 
 - **pre-commit (로컬)**: `bash tools/install-git-hooks.sh` 또는
