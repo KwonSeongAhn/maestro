@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>신일 창문형 에어컨 · 냉기 유도 덕트 어댑터 뷰어</title>
+<style>
+  :root{ --bg:#0f1216; --panel:#181d24; --line:#2a323c; --txt:#e7ecf2; --sub:#9aa7b4; --acc:#38bdf8; }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--txt);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Noto Sans KR",sans-serif}
+  #wrap{display:flex;height:100vh;width:100vw;overflow:hidden}
+  #view{flex:1;position:relative;min-width:0}
+  canvas{display:block;width:100%;height:100%;cursor:grab}
+  canvas:active{cursor:grabbing}
+  #panel{width:320px;flex:0 0 320px;background:var(--panel);border-left:1px solid var(--line);
+    padding:18px 18px 28px;overflow-y:auto}
+  h1{font-size:16px;margin:0 0 2px}
+  .sub{color:var(--sub);font-size:12px;margin:0 0 16px;line-height:1.5}
+  .grp{border-top:1px solid var(--line);padding:14px 0 4px}
+  .grp h2{font-size:12px;letter-spacing:.04em;color:var(--acc);margin:0 0 10px;text-transform:uppercase}
+  label.row{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:8px 0;font-size:13px}
+  label.row span{color:var(--sub)}
+  input[type=range]{flex:1;accent-color:var(--acc)}
+  .val{min-width:52px;text-align:right;font-variant-numeric:tabular-nums;color:var(--txt)}
+  .btns{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px}
+  button{background:#222a33;color:var(--txt);border:1px solid var(--line);border-radius:8px;
+    padding:9px 12px;font-size:13px;cursor:pointer;flex:1}
+  button:hover{border-color:var(--acc)}
+  button.primary{background:var(--acc);color:#04121c;border-color:var(--acc);font-weight:600}
+  .chk{display:flex;align-items:center;gap:8px;font-size:13px;margin:8px 0;color:var(--sub)}
+  .chk input{accent-color:var(--acc)}
+  #dims{position:absolute;left:14px;top:12px;background:rgba(16,20,26,.72);border:1px solid var(--line);
+    border-radius:10px;padding:10px 13px;font-size:12px;line-height:1.7;color:var(--sub);backdrop-filter:blur(3px)}
+  #dims b{color:var(--txt);font-variant-numeric:tabular-nums}
+  #hint{position:absolute;right:14px;bottom:12px;color:var(--sub);font-size:11px;opacity:.7}
+  .tag{display:inline-block;background:#04121c;color:var(--acc);border:1px solid #10465b;
+    border-radius:6px;padding:1px 7px;font-size:11px;margin-right:5px}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="view">
+    <canvas id="cv"></canvas>
+    <div id="dims">
+      <div><span class="tag">흡입</span><b id="d_in">140 × 80</b> mm (에어컨 토출구)</div>
+      <div><span class="tag">토출</span>Ø<b id="d_out">110</b> mm (Ø110 호스)</div>
+      <div><span class="tag">전이</span><b id="d_tr">40</b> mm · <span class="tag">전체 H</span><b id="d_h">68</b> mm</div>
+    </div>
+    <div id="hint">드래그=회전 · 휠=확대 · 우클릭드래그=이동</div>
+  </div>
+  <div id="panel">
+    <h1>냉기 유도 덕트 어댑터</h1>
+    <p class="sub">신일 창문형 에어컨을 실외 창틀에 고정했을 때, 냉기토출구에 씌워
+      유연 덕트호스로 실내에 냉기를 끌어오는 사각→원형 전이 부품.</p>
+
+    <div class="grp"><h2>흡입구 (사각)</h2>
+      <label class="row"><span>가로</span><input id="p_iw" type="range" min="80" max="220" step="1" value="140"><span class="val" id="v_iw">140</span></label>
+      <label class="row"><span>세로</span><input id="p_id" type="range" min="50" max="160" step="1" value="80"><span class="val" id="v_id">80</span></label>
+      <label class="row"><span>스커트 H</span><input id="p_sk" type="range" min="0" max="40" step="1" value="14"><span class="val" id="v_sk">14</span></label>
+    </div>
+    <div class="grp"><h2>전이 / 토출</h2>
+      <label class="row"><span>전이 H</span><input id="p_tr" type="range" min="15" max="90" step="1" value="40"><span class="val" id="v_tr">40</span></label>
+      <label class="row"><span>토출 Ø</span><input id="p_od" type="range" min="60" max="160" step="1" value="110"><span class="val" id="v_od">110</span></label>
+      <label class="row"><span>칼라 H</span><input id="p_co" type="range" min="0" max="40" step="1" value="14"><span class="val" id="v_co">14</span></label>
+    </div>
+    <div class="grp"><h2>벽 / 플랜지</h2>
+      <label class="row"><span>벽 두께</span><input id="p_wl" type="range" min="1.6" max="4" step="0.1" value="2.4"><span class="val" id="v_wl">2.4</span></label>
+      <label class="row"><span>플랜지</span><input id="p_fl" type="range" min="0" max="25" step="1" value="12"><span class="val" id="v_fl">12</span></label>
+    </div>
+    <div class="grp"><h2>보기</h2>
+      <label class="chk"><input type="checkbox" id="c_cut"> 단면 절개(내부 확인)</label>
+      <label class="chk"><input type="checkbox" id="c_wire"> 와이어프레임</label>
+      <label class="chk"><input type="checkbox" id="c_spin" checked> 자동 회전</label>
+    </div>
+    <div class="grp"><h2>내보내기</h2>
+      <div class="btns">
+        <button class="primary" id="b_stl">STL 다운로드</button>
+        <button id="b_reset">치수 초기화</button>
+      </div>
+      <p class="sub" style="margin-top:12px">권장 인쇄: PETG(내열↑) 또는 PLA, 벽 3줄, 채움 15%, 서포트 불필요(직립 인쇄).
+        정밀 출력용 원본은 <b>cold_air_duct.stl</b> / <b>cold_air_duct.scad</b> 참고.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+"use strict";
+// ============================================================================
+// 0. 파라미터
+// ============================================================================
+const P = { iw:140, id:80, sk:14, tr:40, od:110, co:14, wl:2.4, fl:12,
+            fth:3, bead:1.6, N:120, steps:36 };
+const DEF = Object.assign({}, P);
+
+// ============================================================================
+// 1. 덕트 메시 생성 (generate_stl.py 와 동일한 morph 수식)
+//    반환: {pos:Float32Array, nrm:Float32Array, tris:[[i,j,k]...], verts:[[x,y,z]]}
+// ============================================================================
+function rayRect(th, hw, hd){
+  const c=Math.cos(th), s=Math.sin(th);
+  const tx=Math.abs(c)/hw, ty=Math.abs(s)/hd, d=1/Math.max(tx,ty);
+  return [d*c, d*s];
+}
+function morphPt(th, m, hw, hd, r){
+  const rp=rayRect(th,hw,hd), cx=r*Math.cos(th), cy=r*Math.sin(th);
+  return [(1-m)*rp[0]+m*cx, (1-m)*rp[1]+m*cy];
+}
+const ss = t => t*t*(3-2*t);
+
+function buildMesh(p){
+  const HW=p.iw/2, HD=p.id/2, R=p.od/2, W=p.wl, N=p.N;
+  const V=[], T=[];
+  const addV=(x,y,z)=>{ V.push([x,y,z]); return V.length-1; };
+  const quad=(a,b,c,d)=>{ T.push([a,b,c]); T.push([a,c,d]); };
+
+  // 레벨 스택
+  const lv=[];
+  let z=0;
+  lv.push([z,0]); lv.push([z+p.sk,0]); z+=p.sk;         // 스커트
+  for(let i=1;i<=p.steps;i++){ const t=i/p.steps; lv.push([z+p.tr*t, ss(t)]); } z+=p.tr; // 전이
+  lv.push([z,1]); lv.push([z+p.co,1]); z+=p.co;         // 칼라
+  const totalH=z;
+
+  const thetas=[]; for(let k=0;k<N;k++) thetas.push(2*Math.PI*k/N);
+  const outer=[], inner=[];
+  for(const [zz,m] of lv){
+    const orow=[], irow=[];
+    for(const th of thetas){
+      const o=morphPt(th,m,HW+W,HD+W,R+W);
+      const ii=morphPt(th,m,HW,HD,R);
+      orow.push(addV(o[0],o[1],zz));
+      irow.push(addV(ii[0],ii[1],zz));
+    }
+    outer.push(orow); inner.push(irow);
+  }
+  const L=lv.length;
+  for(let i=0;i<L-1;i++) for(let k=0;k<N;k++){ const k2=(k+1)%N;
+    quad(outer[i][k],outer[i][k2],outer[i+1][k2],outer[i+1][k]); }        // 외벽
+  for(let i=0;i<L-1;i++) for(let k=0;k<N;k++){ const k2=(k+1)%N;
+    quad(inner[i][k],inner[i+1][k],inner[i+1][k2],inner[i][k2]); }        // 내벽
+  for(let k=0;k<N;k++){ const k2=(k+1)%N;                                  // 바닥 림
+    quad(outer[0][k],inner[0][k],inner[0][k2],outer[0][k2]); }
+  for(let k=0;k<N;k++){ const k2=(k+1)%N;                                  // 상단 림
+    quad(outer[L-1][k],outer[L-1][k2],inner[L-1][k2],inner[L-1][k]); }
+
+  // 플랜지(사각 프레임)
+  if(p.fl>0){
+    const ohw=HW+W+p.fl, ohd=HD+W+p.fl, ihw=HW+W, ihd=HD+W, t=p.fth;
+    const r4=(hw,hd,zz)=>[addV(hw,hd,zz),addV(-hw,hd,zz),addV(-hw,-hd,zz),addV(hw,-hd,zz)];
+    const ot=r4(ohw,ohd,t),ob=r4(ohw,ohd,0),it=r4(ihw,ihd,t),ib=r4(ihw,ihd,0);
+    for(let k=0;k<4;k++){ const k2=(k+1)%4;
+      quad(ot[k],ot[k2],it[k2],it[k]);   // 상
+      quad(ob[k],ib[k],ib[k2],ob[k2]);   // 하
+      quad(ob[k],ob[k2],ot[k2],ot[k]);   // 외측
+      quad(ib[k],it[k],it[k2],ib[k2]); } // 내측
+  }
+
+  // Float 배열(법선 포함, flat shading)
+  const pos=new Float32Array(T.length*9), nrm=new Float32Array(T.length*9);
+  for(let f=0;f<T.length;f++){
+    const [a,b,c]=T[f], A=V[a],B=V[b],C=V[c];
+    const ux=B[0]-A[0],uy=B[1]-A[1],uz=B[2]-A[2];
+    const vx=C[0]-A[0],vy=C[1]-A[1],vz=C[2]-A[2];
+    let nx=uy*vz-uz*vy, ny=uz*vx-ux*vz, nz=ux*vy-uy*vx;
+    const l=Math.hypot(nx,ny,nz)||1; nx/=l;ny/=l;nz/=l;
+    const tri=[A,B,C];
+    for(let j=0;j<3;j++){ const o=f*9+j*3;
+      pos[o]=tri[j][0]; pos[o+1]=tri[j][1]; pos[o+2]=tri[j][2];
+      nrm[o]=nx; nrm[o+1]=ny; nrm[o+2]=nz; }
+  }
+  return {pos,nrm,tris:T,verts:V,totalH};
+}
+
+// ============================================================================
+// 2. 극소 WebGL 렌더러 (의존성 없음)
+// ============================================================================
+const cv=document.getElementById("cv");
+const gl=cv.getContext("webgl",{antialias:true,alpha:false});
+const VS=`attribute vec3 aPos; attribute vec3 aNrm;
+uniform mat4 uMVP; uniform mat4 uModel; varying vec3 vN; varying vec3 vW;
+void main(){ vN=mat3(uModel)*aNrm; vW=(uModel*vec4(aPos,1.0)).xyz;
+  gl_Position=uMVP*vec4(aPos,1.0); }`;
+const FS=`precision mediump float; varying vec3 vN; varying vec3 vW;
+uniform vec3 uColor; uniform bool uWire;
+void main(){
+  vec3 N=normalize(vN);
+  vec3 L=normalize(vec3(0.4,0.8,0.6));
+  float d=max(dot(N,L),0.0);
+  vec3 L2=normalize(vec3(-0.5,-0.2,-0.7));
+  float d2=max(dot(N,L2),0.0)*0.35;
+  float amb=0.30;
+  vec3 col=uWire? vec3(0.22,0.74,0.97) : uColor;
+  gl_FragColor=vec4(col*(amb+d*0.85+d2), 1.0);
+}`;
+function sh(t,s){const o=gl.createShader(t);gl.shaderSource(o,s);gl.compileShader(o);
+  if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw gl.getShaderInfoLog(o);return o;}
+const prog=gl.createProgram();
+gl.attachShader(prog,sh(gl.VERTEX_SHADER,VS));
+gl.attachShader(prog,sh(gl.FRAGMENT_SHADER,FS));
+gl.linkProgram(prog); gl.useProgram(prog);
+const aPos=gl.getAttribLocation(prog,"aPos"), aNrm=gl.getAttribLocation(prog,"aNrm");
+const uMVP=gl.getUniformLocation(prog,"uMVP"), uModel=gl.getUniformLocation(prog,"uModel");
+const uColor=gl.getUniformLocation(prog,"uColor"), uWire=gl.getUniformLocation(prog,"uWire");
+const bufP=gl.createBuffer(), bufN=gl.createBuffer();
+gl.enable(gl.DEPTH_TEST);
+
+let MESH=null, triCount=0;
+function upload(mesh){
+  MESH=mesh; triCount=mesh.pos.length/3;
+  gl.bindBuffer(gl.ARRAY_BUFFER,bufP); gl.bufferData(gl.ARRAY_BUFFER,mesh.pos,gl.STATIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER,bufN); gl.bufferData(gl.ARRAY_BUFFER,mesh.nrm,gl.STATIC_DRAW);
+}
+
+// ---- 미니 4x4 행렬 유틸 ----
+const M4={
+  persp(f,a,n,fa){const t=1/Math.tan(f/2);return[t/a,0,0,0, 0,t,0,0, 0,0,(fa+n)/(n-fa),-1, 0,0,2*fa*n/(n-fa),0];},
+  mul(a,b){const o=new Array(16);for(let r=0;r<4;r++)for(let c=0;c<4;c++){let s=0;
+    for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s;}return o;},
+  ident(){return[1,0,0,0,0,1,0,0,0,0,1,0,0,0,0,1];},
+  trans(x,y,z){return[1,0,0,0,0,1,0,0,0,0,1,0,x,y,z,1];},
+  rotX(a){const c=Math.cos(a),s=Math.sin(a);return[1,0,0,0,0,c,s,0,0,-s,c,0,0,0,0,1];},
+  rotY(a){const c=Math.cos(a),s=Math.sin(a);return[c,0,-s,0,0,1,0,0,s,0,c,0,0,0,0,1];},
+};
+
+// ---- 카메라 상태 ----
+let yaw=0.7, pitch=-0.5, dist=280, panx=0, pany=0, spin=true;
+let cutaway=false, wire=false;
+
+function render(){
+  const w=cv.clientWidth, h=cv.clientHeight, dpr=Math.min(devicePixelRatio||1,2);
+  if(cv.width!==w*dpr||cv.height!==h*dpr){cv.width=w*dpr;cv.height=h*dpr;}
+  gl.viewport(0,0,cv.width,cv.height);
+  gl.clearColor(0.059,0.071,0.086,1); gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  if(!MESH) return;
+  if(spin) yaw+=0.006;
+
+  const cx=Math.cos(pitch)*Math.sin(yaw)*dist;
+  const cy=Math.sin(pitch)*dist;
+  const cz=Math.cos(pitch)*Math.cos(yaw)*dist;
+  // lookAt(원점 근처, 물체 중심 y=totalH/2)
+  const cyc=MESH.totalH/2;
+  const view=lookAt([cx,cy+cyc,cz],[panx,cyc+pany,0],[0,1,0]);
+  const proj=M4.persp(0.9, w/h||1, 1, 4000);
+  const model=M4.ident();
+  const mvp=M4.mul(proj, view);
+
+  gl.useProgram(prog);
+  gl.uniformMatrix4fv(uMVP,false,new Float32Array(mvp));
+  gl.uniformMatrix4fv(uModel,false,new Float32Array(model));
+  gl.uniform3fv(uColor,[0.80,0.82,0.86]);
+  gl.uniform1i(uWire, wire?1:0);
+
+  gl.bindBuffer(gl.ARRAY_BUFFER,bufP);
+  gl.enableVertexAttribArray(aPos); gl.vertexAttribPointer(aPos,3,gl.FLOAT,false,0,0);
+  gl.bindBuffer(gl.ARRAY_BUFFER,bufN);
+  gl.enableVertexAttribArray(aNrm); gl.vertexAttribPointer(aNrm,3,gl.FLOAT,false,0,0);
+
+  if(cutaway){
+    gl.enable(gl.SCISSOR_TEST);
+    gl.scissor(0,0,Math.floor(cv.width/2),cv.height); // 왼쪽 절반만 그려 내부 노출
+  } else gl.disable(gl.SCISSOR_TEST);
+
+  if(wire){
+    for(let i=0;i<triCount;i+=3) gl.drawArrays(gl.LINE_LOOP,i,3);
+  } else {
+    gl.drawArrays(gl.TRIANGLES,0,triCount);
+  }
+  gl.disable(gl.SCISSOR_TEST);
+  requestAnimationFrame(render);
+}
+
+function lookAt(eye,ctr,up){
+  const z=norm(sub(eye,ctr)); const x=norm(cross(up,z)); const y=cross(z,x);
+  return [x[0],y[0],z[0],0, x[1],y[1],z[1],0, x[2],y[2],z[2],0,
+    -dot(x,eye),-dot(y,eye),-dot(z,eye),1];
+}
+const sub=(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]];
+const cross=(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]];
+const dot=(a,b)=>a[0]*b[0]+a[1]*b[1]+a[2]*b[2];
+const norm=a=>{const l=Math.hypot(a[0],a[1],a[2])||1;return[a[0]/l,a[1]/l,a[2]/l];};
+
+// ============================================================================
+// 3. 입력(마우스)
+// ============================================================================
+let drag=null, lx=0, ly=0;
+cv.addEventListener("mousedown",e=>{drag=e.button===2?"pan":"orb";lx=e.clientX;ly=e.clientY;spin=false;document.getElementById("c_spin").checked=false;});
+window.addEventListener("mouseup",()=>drag=null);
+window.addEventListener("mousemove",e=>{
+  if(!drag)return; const dx=e.clientX-lx, dy=e.clientY-ly; lx=e.clientX; ly=e.clientY;
+  if(drag==="orb"){ yaw-=dx*0.008; pitch=Math.max(-1.4,Math.min(1.4,pitch-dy*0.008)); }
+  else { panx-=dx*0.35; pany+=dy*0.35; }
+});
+cv.addEventListener("wheel",e=>{e.preventDefault();dist=Math.max(90,Math.min(1200,dist*(1+Math.sign(e.deltaY)*0.08)));},{passive:false});
+cv.addEventListener("contextmenu",e=>e.preventDefault());
+
+// ============================================================================
+// 4. STL 내보내기 (바이너리)
+// ============================================================================
+function exportSTL(){
+  const V=MESH.verts, T=MESH.tris;
+  const buf=new ArrayBuffer(84+T.length*50), dv=new DataView(buf);
+  let o=84; dv.setUint32(80,T.length,true);
+  for(const [a,b,c] of T){
+    const A=V[a],B=V[b],C=V[c];
+    const ux=B[0]-A[0],uy=B[1]-A[1],uz=B[2]-A[2],vx=C[0]-A[0],vy=C[1]-A[1],vz=C[2]-A[2];
+    let nx=uy*vz-uz*vy,ny=uz*vx-ux*vz,nz=ux*vy-uy*vx,l=Math.hypot(nx,ny,nz)||1;
+    dv.setFloat32(o,nx/l,true);dv.setFloat32(o+4,ny/l,true);dv.setFloat32(o+8,nz/l,true);o+=12;
+    for(const V3 of [A,B,C]){dv.setFloat32(o,V3[0],true);dv.setFloat32(o+4,V3[1],true);dv.setFloat32(o+8,V3[2],true);o+=12;}
+    dv.setUint16(o,0,true);o+=2;
+  }
+  const blob=new Blob([buf],{type:"model/stl"});
+  const a=document.createElement("a"); a.href=URL.createObjectURL(blob);
+  a.download=`cold_air_duct_${P.iw}x${P.id}_D${P.od}.stl`; a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+// ============================================================================
+// 5. UI 바인딩
+// ============================================================================
+function rebuild(){
+  upload(buildMesh(P));
+  const totalH=Math.round(P.sk+P.tr+P.co);
+  document.getElementById("d_in").textContent=`${P.iw} × ${P.id}`;
+  document.getElementById("d_out").textContent=P.od;
+  document.getElementById("d_tr").textContent=P.tr;
+  document.getElementById("d_h").textContent=totalH;
+}
+const bind=(id,key,fmt)=>{
+  const el=document.getElementById(id), out=document.getElementById(id.replace("p_","v_"));
+  const upd=()=>{P[key]=parseFloat(el.value); out.textContent=(fmt?fmt(el.value):el.value); rebuild();};
+  el.addEventListener("input",upd);
+};
+bind("p_iw","iw"); bind("p_id","id"); bind("p_sk","sk");
+bind("p_tr","tr"); bind("p_od","od"); bind("p_co","co");
+bind("p_wl","wl",v=>(+v).toFixed(1)); bind("p_fl","fl");
+document.getElementById("c_cut").addEventListener("change",e=>cutaway=e.target.checked);
+document.getElementById("c_wire").addEventListener("change",e=>wire=e.target.checked);
+document.getElementById("c_spin").addEventListener("change",e=>spin=e.target.checked);
+document.getElementById("b_stl").addEventListener("click",exportSTL);
+document.getElementById("b_reset").addEventListener("click",()=>{
+  Object.assign(P,DEF);
+  for(const [id,key] of [["p_iw","iw"],["p_id","id"],["p_sk","sk"],["p_tr","tr"],["p_od","od"],["p_co","co"],["p_wl","wl"],["p_fl","fl"]]){
+    const el=document.getElementById(id); el.value=DEF[key];
+    document.getElementById(id.replace("p_","v_")).textContent = key==="wl"?DEF[key].toFixed(1):DEF[key];
+  }
+  rebuild();
+});
+
+rebuild();
+render();
+</script>
+</body>
+</html>
