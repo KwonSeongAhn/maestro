@@ -22,14 +22,15 @@ lip_in    = 8;     // 흡입 직선 스냅(+X) — 최소화
 bend_deg  = 90;    // 벤드 각 (90=옆으로 수평, 180=반대편)
 bend_r    = 80;    // 벤드 중심선 반경(꺾임 거리 최소화)
 outlet_d  = 142;   // 원통 토출 보어(내경) — Ø150 호스 안에 들어가도록
-lip_out   = 46;    // 토출 직선 칼라(나사부)
+lip_out   = 223;   // 토출 직선 원통 길이(연장). 전체 ~390mm
 
 /* [ 토출 외부 수나사 (Ø150 호스/커넥터 체결) ] */
 thread_on    = true;
 pitch        = 15;   // 나사 피치(호스 주름 간격 실측·조정)
 thr_round    = 2.0;  // 나사산 단면 반경(마루 = 칼라외경 + 이 값)
 starts       = 2;    // 나사 줄 수
-thr_margin   = 3;    // 칼라 양끝 여유
+thr_len      = 42;   // 나사부 길이(원통 끝단에만)
+thr_margin   = 3;    // 끝단 여유
 
 /* [ 벽 / 플랜지 ] */
 wall      = 2.6;   // 벽 두께
@@ -171,7 +172,7 @@ module thread_coil() {
         Vax = [0, 0, 1];                              // 면밖(세로)축
         aC  = [lip_in + bend_r*sin(bend_deg), bend_r*(1-cos(bend_deg)), 0]; // 칼라 시작
         rr  = outlet_d/2 + wall;                      // 칼라 외경(나사 골 표면)
-        s0 = thr_margin; s1 = lip_out - thr_margin;
+        s1 = lip_out - thr_margin; s0 = max(thr_margin, s1 - thr_len);
         steps = ceil((s1-s0)/pitch*24);
         for (k=[0:starts-1])
             for (i=[0:steps-1]) {

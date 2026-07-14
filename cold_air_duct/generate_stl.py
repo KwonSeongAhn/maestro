@@ -29,7 +29,7 @@ OUTLET_DIA = 142.0   # 원통 토출 보어(내경). 수나사 체결용으로 �
 BEND_DEG   = 90.0    # 벤드 각도 (90=옆으로 수평, 180=반대편)
 BEND_R     = 80.0    # ★ 벤드 중심선 반경 (꺾임 거리 최소화 → 타이트)
 LIP_IN     = 8.0     # 사각 흡입 직선 스냅(+X) — 최소화(거의 흡입면서 바로 꺾임)
-LIP_OUT    = 46.0    # 원통 토출 직선 칼라(나사부 길이 확보)
+LIP_OUT    = 223.0   # 원통 토출 직선 칼라 길이(연장). 전체 ~390mm. 나사는 끝단만.
 WALL       = 2.6     # 벽 두께
 FLANGE     = 14.0    # 흡입 수직 플랜지 폭 (0=없음)
 FLANGE_TH  = 3.0     # 플랜지 두께(X)
@@ -45,7 +45,8 @@ HOSE_DIA      = 150.0  # 연결 호스/커넥터 공칭경(내부 나사산)
 THREAD_PITCH  = 15.0   # 나사 피치(호스 주름 간격에 맞춰 실측·조정)
 THREAD_ROUND  = 2.0    # 나사산 단면 반경(둥근 프로파일). 마루=칼라외경+이 값
 THREAD_STARTS = 2      # 나사 줄 수(샘플 커넥터 내부 리브 2개 → 2줄)
-THREAD_MARGIN = 3.0    # 칼라 양끝 나사 없는 여유
+THREAD_LEN    = 42.0   # 나사부 길이(원통 '끝단'에만). 앞쪽은 매끈한 연장부.
+THREAD_MARGIN = 3.0    # 끝단 여유
 THR_RSTEP     = 12     # 나사 단면 분할
 THR_SSTEP_PT  = 28     # 한 바퀴당 세로 분할
 
@@ -240,7 +241,8 @@ def build_thread(mesh, st):
     C_start = sub(C_end, scale(T, LIP_OUT))   # 칼라 시작(벤드 끝)
     rr = R + WALL                             # 칼라 외경(나사 골 표면)
     dphi = 2.0*math.pi / THREAD_PITCH
-    s0, s1 = THREAD_MARGIN, LIP_OUT - THREAD_MARGIN
+    s1 = LIP_OUT - THREAD_MARGIN            # 끝단 근처
+    s0 = max(THREAD_MARGIN, s1 - THREAD_LEN)  # 끝단에서 THREAD_LEN 만큼만 나사
     length = s1 - s0
     steps = max(8, int(length / THREAD_PITCH * THR_SSTEP_PT))
     M = THR_RSTEP
