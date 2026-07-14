@@ -1,267 +1,250 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-신일 창문형 에어컨 냉기 유도 덕트 어댑터 (Square-to-Round transition duct)
-- 의존성 없는 순수 파이썬 STL(바이너리) 생성기.
-- 스케치: 140 x 80 사각 흡입구  ->  Ø110 원형 토출구, 전이 높이 40.
-- 실외 창틀에 고정된 에어컨의 냉기토출구에 씌워, 유연 덕트호스(Ø110)를
-  연결해 실내로 냉기를 끌어오기 위한 부품.
+신일 창문형 에어컨 냉기 유도 덕트 — 측면도 기준 상향 벤드 어댑터 (모서리 R)
+  - 사각(모서리 R) 흡입구 140 x 80 이 에어컨 토출면(수직)에 수직 플랜지로 밀착,
+    냉기를 큰 반경으로 말아 올려 Ø148 원통으로 토출.
+  - 측면도: 왼쪽 수직 = 에어컨 본체/토출면(상·하 립으로 물림),
+            큰 라운드 코너로 부드럽게 꺾여 위로 뻗는 목 = 원통 토출.
+  - 모든 모서리에 R(필렛): 단면 사각 모서리 + 벤드 + 플랜지 외곽.
 
-이 스크립트를 실행하면 cold_air_duct.stl 이 생성되고,
-메시가 수밀(watertight/manifold)인지 자동 검증 리포트를 출력한다.
+좌표계: 에어컨 토출면 = x=0 (YZ). 냉기 +X 유입 → 벤드 → +Z(위) 토출.
+        Y = 가로(140), Z = 세로(80, 벤드 평면 내).
+
+의존성 없는 순수 파이썬 STL(바이너리) 생성 + 수밀 자동 검증.
+  python3 generate_stl.py   ->  cold_air_duct.stl
 """
 
 import math
 import struct
 
 # ----------------------------------------------------------------------------
-# 파라미터 (mm) — 스케치 기준값. 필요 시 여기만 고치면 됨.
+# 파라미터 (mm)
 # ----------------------------------------------------------------------------
-INLET_W      = 140.0   # 사각 흡입구 가로 (에어컨 토출구 폭)
-INLET_D      = 80.0    # 사각 흡입구 세로 (에어컨 토출구 깊이)
-TRANS_H      = 40.0    # 사각->원형 전이부 높이  (스케치의 '40')
-OUTLET_DIA   = 110.0   # 원형 토출구 지름       (스케치의 '110', Ø110 플렉시블 호스)
-WALL         = 2.4     # 벽 두께 (0.4 노즐 기준 6 벽선)
-SKIRT_H      = 14.0    # 흡입구 스커트(에어컨 토출구에 끼워지는 직벽) 높이
-COLLAR_H     = 14.0    # 원형 호스 연결 칼라(직벽) 높이
-FLANGE       = 12.0    # 흡입구 둘레 고정 플랜지 폭
-FLANGE_TH    = 3.0     # 플랜지 두께
-BEAD_H       = 2.0     # 호스 이탈 방지용 칼라 외부 비드(돌기) 높이
-BEAD_T       = 1.6     # 비드 두께(반경 방향)
-N            = 160     # 단면 분할 수(원주 방향 정점 수). 클수록 매끈.
-MORPH_STEPS  = 40      # 전이부 세로 분할 수. 클수록 매끈.
+INLET_W    = 140.0   # 사각 흡입구 가로 (수평, Y)
+INLET_D    = 80.0    # 사각 흡입구 세로 (수직, Z, 벤드 평면 내)
+CORNER_R   = 20.0    # ★ 단면 사각 모서리 라운드 반경 (모서리 R)
+OUTLET_DIA = 148.0   # 원통 토출 지름 (Ø148)
+BEND_DEG   = 90.0    # 벤드 각도 (90=상향 L, 180=U)
+BEND_R     = 90.0    # ★ 벤드 중심선 반경 (큰 라운드 코너)
+LIP_IN     = 26.0    # 사각 흡입 직선 스냅(+X)
+LIP_OUT    = 32.0    # 원통 토출 직선 칼라
+WALL       = 2.6     # 벽 두께
+FLANGE     = 14.0    # 흡입 수직 플랜지 폭 (0=없음)
+FLANGE_TH  = 3.0     # 플랜지 두께(X)
+FLANGE_R   = 10.0    # ★ 플랜지 외곽 모서리 라운드
+BEAD_T     = 1.6     # 호스 이탈방지 비드 돌출(반경)
+BEAD_H     = 3.0     # 비드 높이(축)
+N          = 160     # 원주 분할
+BEND_STEPS = 80      # 벤드 분할
+LIP_STEPS  = 5       # 직선 립 분할
 
 OUT_PATH = "cold_air_duct.stl"
 
-# ----------------------------------------------------------------------------
-# 단면 프로파일: 각도 theta 에서 반경을 정하되, m(0->1) 로 사각<->원 을 보간.
-#   m=0  : 반치수 (hw,hd) 사각형
-#   m=1  : 반경 r 원
-# 사각형 위 점은 중심에서 각도 theta 로 쏜 광선이 사각 경계에 닿는 점.
-# ----------------------------------------------------------------------------
-def ray_rect(theta, hw, hd):
-    c = math.cos(theta)
-    s = math.sin(theta)
-    tx = abs(c) / hw if hw > 1e-9 else float("inf")
-    ty = abs(s) / hd if hd > 1e-9 else float("inf")
-    d = 1.0 / max(tx, ty)
-    return d * c, d * s
-
-def profile_point(theta, m, hw, hd, r):
-    rx, ry = ray_rect(theta, hw, hd)
-    cx, cy = r * math.cos(theta), r * math.sin(theta)
-    return (1.0 - m) * rx + m * cx, (1.0 - m) * ry + m * cy
-
-# 파생 치수
-HW = INLET_W / 2.0
-HD = INLET_D / 2.0
+HU = INLET_D / 2.0   # U-반치수(세로 80, 벤드 평면 내)
+HV = INLET_W / 2.0   # V-반치수(가로 140, 평면 밖)
 R  = OUTLET_DIA / 2.0
 
 # ----------------------------------------------------------------------------
-# 레벨(단면) 스택 구성. 각 레벨 = (z, m, hw, hd, r) — 내부(개구) 치수 기준.
-# 외부 프로파일은 반치수/반경에 WALL 을 더해 계산.
+# 벡터 유틸
 # ----------------------------------------------------------------------------
-def build_levels():
-    levels = []
-    z = 0.0
-    # 1) 스커트(직벽 사각) : 바닥 -> 스커트 상단
-    levels.append((z,            0.0, HW, HD, R))
-    levels.append((z + SKIRT_H,  0.0, HW, HD, R))
-    z += SKIRT_H
-    # 2) 전이부: 사각(m=0) -> 원(m=1)
-    for i in range(1, MORPH_STEPS + 1):
-        t = i / MORPH_STEPS
-        # smoothstep 로 상/하단을 부드럽게
-        m = t * t * (3 - 2 * t)
-        levels.append((z + TRANS_H * t, m, HW, HD, R))
-    z += TRANS_H
-    # 3) 원형 칼라(직벽)
-    levels.append((z,             1.0, HW, HD, R))
-    levels.append((z + COLLAR_H,  1.0, HW, HD, R))
-    z += COLLAR_H
-    return levels, z  # z = 전체 높이
+def sub(a, b): return (a[0]-b[0], a[1]-b[1], a[2]-b[2])
+def add(a, b): return (a[0]+b[0], a[1]+b[1], a[2]+b[2])
+def scale(a, s): return (a[0]*s, a[1]*s, a[2]*s)
+def cross(a, b): return (a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0])
+def dot(a, b): return a[0]*b[0]+a[1]*b[1]+a[2]*b[2]
+def norm(a):
+    L = math.sqrt(dot(a, a)) or 1.0
+    return (a[0]/L, a[1]/L, a[2]/L)
 
 # ----------------------------------------------------------------------------
-# 메시 빌더 (정점/삼각형 누적). 삼각형은 (v0,v1,v2) 인덱스로 CCW=바깥.
+# 둥근 사각형 SDF (반치수 hu,hv, 코너반경 rc) — 각도 theta 광선의 경계 반지름
+# ----------------------------------------------------------------------------
+def rrect_sdf(x, y, hu, hv, rc):
+    qx = abs(x) - (hu - rc)
+    qy = abs(y) - (hv - rc)
+    outside = math.hypot(max(qx, 0.0), max(qy, 0.0))
+    inside = min(max(qx, qy), 0.0)
+    return outside + inside - rc
+
+def rrect_radius(theta, hu, hv, rc):
+    rc = max(0.0, min(rc, min(hu, hv)))
+    c, s = math.cos(theta), math.sin(theta)
+    lo, hi = 0.0, hu + hv + rc + 1.0
+    for _ in range(40):                       # 이분법으로 경계 t 탐색
+        mid = 0.5 * (lo + hi)
+        if rrect_sdf(mid*c, mid*s, hu, hv, rc) < 0.0:
+            lo = mid
+        else:
+            hi = mid
+    return 0.5 * (lo + hi)
+
+# 단면 프로파일 점: 둥근사각(m=0) <-> 원(m=1)
+def profile_point(theta, m, hu, hv, rc, r):
+    rr = rrect_radius(theta, hu, hv, rc)
+    rx, ry = rr*math.cos(theta), rr*math.sin(theta)
+    cx, cy = r*math.cos(theta),  r*math.sin(theta)
+    return (1.0-m)*rx + m*cx, (1.0-m)*ry + m*cy
+
+def ss(t): return t*t*(3-2*t)
+
+# ----------------------------------------------------------------------------
+# 중심선 스테이션 프레임: V=(0,1,0)(평면밖), U=norm(cross(V,T))
+# ----------------------------------------------------------------------------
+def build_stations():
+    V = (0.0, 1.0, 0.0)
+    st = []
+    bend = math.radians(BEND_DEG)
+
+    def frame(C, T): return {"C": C, "U": norm(cross(V, norm(T))), "V": V}
+    def arc_C(a): return (LIP_IN + BEND_R*math.sin(a), 0.0, BEND_R*(1-math.cos(a)))
+    def arc_T(a): return (math.cos(a), 0.0, math.sin(a))
+
+    for i in range(LIP_STEPS + 1):            # 흡입 직선 스냅 x:0→LIP_IN
+        x = LIP_IN * i / LIP_STEPS
+        f = frame((x, 0.0, 0.0), (1.0, 0.0, 0.0)); f["m"] = 0.0
+        st.append(f)
+    for i in range(1, BEND_STEPS + 1):        # 벤드 +X→+Z
+        a = bend * i / BEND_STEPS
+        f = frame(arc_C(a), arc_T(a)); f["m"] = ss(i / BEND_STEPS)
+        st.append(f)
+    Te, Ce = arc_T(bend), arc_C(bend)         # 토출 직선 칼라
+    for i in range(1, LIP_STEPS + 1):
+        s = LIP_OUT * i / LIP_STEPS
+        f = frame(add(Ce, scale(Te, s)), Te); f["m"] = 1.0
+        st.append(f)
+    return st
+
+# ----------------------------------------------------------------------------
+# 메시
 # ----------------------------------------------------------------------------
 class Mesh:
-    def __init__(self):
-        self.v = []
-        self.t = []
-    def add_v(self, x, y, z):
-        self.v.append((x, y, z))
-        return len(self.v) - 1
-    def add_t(self, a, b, c):
-        self.t.append((a, b, c))
-    def add_quad(self, a, b, c, d):
-        # a-b-c-d 순환(바깥에서 CCW). 두 삼각형으로.
-        self.t.append((a, b, c))
-        self.t.append((a, c, d))
+    def __init__(self): self.v = []; self.t = []
+    def add_v(self, p): self.v.append(p); return len(self.v)-1
+    def quad(self, a, b, c, d): self.t.append((a, b, c)); self.t.append((a, c, d))
+
+def prof3d(f, theta, off):
+    pu, pv = profile_point(theta, f["m"], HU+off, HV+off, CORNER_R+off, R+off)
+    C, U, V = f["C"], f["U"], f["V"]
+    return (C[0]+pu*U[0]+pv*V[0], C[1]+pu*U[1]+pv*V[1], C[2]+pu*U[2]+pv*V[2])
 
 def build_shell(mesh):
-    levels, total_h = build_levels()
-    thetas = [2.0 * math.pi * k / N for k in range(N)]
+    st = build_stations()
+    thetas = [2.0*math.pi*k/N for k in range(N)]
+    outer = [[mesh.add_v(prof3d(f, th, WALL)) for th in thetas] for f in st]
+    inner = [[mesh.add_v(prof3d(f, th, 0.0))  for th in thetas] for f in st]
+    L = len(st)
+    for i in range(L-1):
+        for k in range(N):
+            k2 = (k+1) % N
+            mesh.quad(outer[i][k], outer[i][k2], outer[i+1][k2], outer[i+1][k])
+            mesh.quad(inner[i][k], inner[i+1][k], inner[i+1][k2], inner[i][k2])
+    for k in range(N):                        # 흡입 림
+        k2 = (k+1) % N
+        mesh.quad(outer[0][k], inner[0][k], inner[0][k2], outer[0][k2])
+    for k in range(N):                        # 토출 림
+        k2 = (k+1) % N
+        mesh.quad(outer[L-1][k], outer[L-1][k2], inner[L-1][k2], inner[L-1][k])
+    return st
 
-    outer_rings = []  # 각 레벨의 외부 정점 인덱스 리스트[N]
-    inner_rings = []
-    for (z, m, hw, hd, r) in levels:
-        oring = []
-        iring = []
+# ----------------------------------------------------------------------------
+# 흡입 플랜지: 수직(YZ) 둥근사각 프레임, 두께 -X
+# ----------------------------------------------------------------------------
+def build_flange(mesh, st):
+    if FLANGE <= 0: return
+    x1, x0 = 0.0, -FLANGE_TH
+    thetas = [2.0*math.pi*k/N for k in range(N)]
+    def ring(hu, hv, rc, x):
+        out = []
         for th in thetas:
-            ox, oy = profile_point(th, m, hw + WALL, hd + WALL, r + WALL)
-            ix, iy = profile_point(th, m, hw,        hd,        r)
-            oring.append(mesh.add_v(ox, oy, z))
-            iring.append(mesh.add_v(ix, iy, z))
-        outer_rings.append(oring)
-        inner_rings.append(iring)
-
-    L = len(levels)
-    # 외벽 (바깥으로 향하도록 CCW)
-    for i in range(L - 1):
-        for k in range(N):
-            k2 = (k + 1) % N
-            a = outer_rings[i][k]
-            b = outer_rings[i][k2]
-            c = outer_rings[i + 1][k2]
-            d = outer_rings[i + 1][k]
-            mesh.add_quad(a, b, c, d)
-    # 내벽 (안쪽으로 향하도록 반대 감김)
-    for i in range(L - 1):
-        for k in range(N):
-            k2 = (k + 1) % N
-            a = inner_rings[i][k]
-            b = inner_rings[i][k2]
-            c = inner_rings[i + 1][k2]
-            d = inner_rings[i + 1][k]
-            mesh.add_quad(a, d, c, b)
-    # 바닥 림(레벨0): 외부->내부 링을 잇는 아래쪽 환형 (아래로 향함)
+            rr = rrect_radius(th, hu, hv, rc)
+            out.append(mesh.add_v((x, rr*math.cos(th), rr*math.sin(th))))
+        return out
+    # 로컬 (U=Z세로, V=Y가로) 이지만 여기선 (y=가로, z=세로)로 직접:
+    # rrect_radius 는 (hu,hv)=(가로반, 세로반) 순으로 x=cos→가로(Y), y=sin→세로(Z)
+    iy, iz = HV+WALL, HU+WALL          # 구멍 = 스커트 외곽 (가로반, 세로반)
+    oy, oz = HV+WALL+FLANGE, HU+WALL+FLANGE
+    of = ring(oy, oz, FLANGE_R+FLANGE, x1); ob = ring(oy, oz, FLANGE_R+FLANGE, x0)
+    iff = ring(iy, iz, CORNER_R+WALL, x1);  ib = ring(iy, iz, CORNER_R+WALL, x0)
     for k in range(N):
-        k2 = (k + 1) % N
-        o1 = outer_rings[0][k]; o2 = outer_rings[0][k2]
-        i1 = inner_rings[0][k]; i2 = inner_rings[0][k2]
-        mesh.add_quad(o1, i1, i2, o2)   # 아래(-Z) 방향
-    # 상단 림(마지막): 위쪽 환형 (위로 향함)
-    last = L - 1
+        k2 = (k+1) % N
+        mesh.quad(of[k], of[k2], iff[k2], iff[k])   # 앞면
+        mesh.quad(ob[k], ib[k], ib[k2], ob[k2])     # 뒷면(에어컨 밀착)
+        mesh.quad(ob[k], ob[k2], of[k2], of[k])     # 외측
+        mesh.quad(ib[k], iff[k], iff[k2], ib[k2])   # 내측(구멍)
+
+# ----------------------------------------------------------------------------
+# 호스 이탈방지 비드 (토출 국소 프레임 기준 링)
+# ----------------------------------------------------------------------------
+def build_bead(mesh, st):
+    if BEAD_T <= 0: return
+    f = st[-1]; C, U, V = f["C"], f["U"], f["V"]
+    T = norm(cross(U, V))
+    thetas = [2.0*math.pi*k/N for k in range(N)]
+    Cc = sub(C, scale(T, 4.0))
+    def ring(rr, along):
+        base = add(Cc, scale(T, along))
+        out = []
+        for th in thetas:
+            d = (math.cos(th), math.sin(th))
+            p = (base[0]+rr*(d[0]*U[0]+d[1]*V[0]),
+                 base[1]+rr*(d[0]*U[1]+d[1]*V[1]),
+                 base[2]+rr*(d[0]*U[2]+d[1]*V[2]))
+            out.append(mesh.add_v(p))
+        return out
+    ri, ro = R+WALL, R+WALL+BEAD_T
+    bi=ring(ri,-BEAD_H/2); bo=ring(ro,-BEAD_H/2); ti=ring(ri,BEAD_H/2); to=ring(ro,BEAD_H/2)
     for k in range(N):
-        k2 = (k + 1) % N
-        o1 = outer_rings[last][k]; o2 = outer_rings[last][k2]
-        i1 = inner_rings[last][k]; i2 = inner_rings[last][k2]
-        mesh.add_quad(o1, o2, i2, i1)   # 위(+Z) 방향
-    return total_h
+        k2 = (k+1) % N
+        mesh.quad(bo[k], bo[k2], to[k2], to[k])
+        mesh.quad(bi[k], ti[k], ti[k2], bi[k2])
+        mesh.quad(bi[k], bi[k2], bo[k2], bo[k])
+        mesh.quad(ti[k], to[k], to[k2], ti[k2])
 
 # ----------------------------------------------------------------------------
-# 호스 이탈방지 비드: 칼라 외부에 얇은 링(사각형 단면 도넛)을 별도 솔리드로.
-# ----------------------------------------------------------------------------
-def build_bead(mesh, total_h):
-    z_top = total_h - 3.0            # 칼라 상단서 살짝 아래
-    z_bot = z_top - BEAD_H
-    r_in  = R + WALL                 # 칼라 외경
-    r_out = R + WALL + BEAD_T
-    thetas = [2.0 * math.pi * k / N for k in range(N)]
-    # 4개의 링: (하단 안/밖), (상단 안/밖)
-    ring = {}
-    for name, (rr, zz) in {
-        "bi": (r_in,  z_bot), "bo": (r_out, z_bot),
-        "ti": (r_in,  z_top), "to": (r_out, z_top),
-    }.items():
-        ring[name] = [mesh.add_v(rr*math.cos(t), rr*math.sin(t), zz) for t in thetas]
-    for k in range(N):
-        k2 = (k + 1) % N
-        # 바깥 원통면
-        mesh.add_quad(ring["bo"][k], ring["bo"][k2], ring["to"][k2], ring["to"][k])
-        # 안쪽 원통면(반대)
-        mesh.add_quad(ring["bi"][k], ring["ti"][k], ring["ti"][k2], ring["bi"][k2])
-        # 하단면(아래로)
-        mesh.add_quad(ring["bi"][k], ring["bi"][k2], ring["bo"][k2], ring["bo"][k])
-        # 상단면(위로)
-        mesh.add_quad(ring["ti"][k], ring["to"][k], ring["to"][k2], ring["ti"][k2])
-
-# ----------------------------------------------------------------------------
-# 플랜지: 흡입구 둘레 평판 프레임(사각 도넛). 구멍은 스커트 외곽과 일치.
-# ----------------------------------------------------------------------------
-def build_flange(mesh):
-    z0 = 0.0
-    z1 = FLANGE_TH
-    ohw = HW + WALL + FLANGE   # 플랜지 외곽 반치수
-    ohd = HD + WALL + FLANGE
-    ihw = HW + WALL            # 구멍 = 스커트 외곽
-    ihd = HD + WALL
-    def rect4(hw, hd, z):
-        return [mesh.add_v(hw, hd, z), mesh.add_v(-hw, hd, z),
-                mesh.add_v(-hw, -hd, z), mesh.add_v(hw, -hd, z)]
-    ot = rect4(ohw, ohd, z1); ob = rect4(ohw, ohd, z0)  # outer top/bottom
-    it = rect4(ihw, ihd, z1); ib = rect4(ihw, ihd, z0)  # inner top/bottom
-    for k in range(4):
-        k2 = (k + 1) % 4
-        # 상단 프레임(위로)
-        mesh.add_quad(ot[k], ot[k2], it[k2], it[k])
-        # 하단 프레임(아래로)
-        mesh.add_quad(ob[k], ib[k], ib[k2], ob[k2])
-        # 외측면(바깥)
-        mesh.add_quad(ob[k], ob[k2], ot[k2], ot[k])
-        # 내측면(구멍 안쪽)
-        mesh.add_quad(ib[k], it[k], it[k2], ib[k2])
-
-# ----------------------------------------------------------------------------
-# 검증: 각 방향 있는 반쪽에지가 정확히 반대 방향과 1:1 매칭 -> 수밀.
+# 검증 / 기록
 # ----------------------------------------------------------------------------
 def check_watertight(mesh):
     from collections import defaultdict
-    edges = defaultdict(int)
+    e = defaultdict(int)
     for (a, b, c) in mesh.t:
-        for (u, w) in ((a, b), (b, c), (c, a)):
-            edges[(u, w)] += 1
-    bad = 0
-    unmatched = 0
-    for (u, w), cnt in edges.items():
-        if cnt != 1:
-            bad += 1
-        if edges.get((w, u), 0) != cnt:
-            unmatched += 1
-    return bad, unmatched, len(edges)
+        for u, w in ((a, b), (b, c), (c, a)): e[(u, w)] += 1
+    bad = sum(1 for cnt in e.values() if cnt != 1)
+    unmatched = sum(1 for (u, w), cnt in e.items() if e.get((w, u), 0) != cnt)
+    return bad, unmatched, len(e)
 
-# ----------------------------------------------------------------------------
-# 법선 계산 + 바이너리 STL 기록
-# ----------------------------------------------------------------------------
-def normal(p0, p1, p2):
-    ux, uy, uz = p1[0]-p0[0], p1[1]-p0[1], p1[2]-p0[2]
-    vx, vy, vz = p2[0]-p0[0], p2[1]-p0[1], p2[2]-p0[2]
-    nx = uy*vz - uz*vy
-    ny = uz*vx - ux*vz
-    nz = ux*vy - uy*vx
-    L = math.sqrt(nx*nx + ny*ny + nz*nz)
-    if L < 1e-12:
-        return 0.0, 0.0, 0.0
-    return nx/L, ny/L, nz/L
+def tri_normal(p0, p1, p2):
+    n = cross(sub(p1, p0), sub(p2, p0)); L = math.sqrt(dot(n, n))
+    return (0.0, 0.0, 0.0) if L < 1e-12 else (n[0]/L, n[1]/L, n[2]/L)
+
+def bbox(mesh):
+    xs=[p[0] for p in mesh.v]; ys=[p[1] for p in mesh.v]; zs=[p[2] for p in mesh.v]
+    return (max(xs)-min(xs), max(ys)-min(ys), max(zs)-min(zs))
 
 def write_stl(mesh, path):
-    with open(path, "wb") as f:
-        header = b"cold_air_duct Shinil window AC square-to-round adapter"
-        f.write(header + b" " * (80 - len(header)))
-        f.write(struct.pack("<I", len(mesh.t)))
+    with open(path, "wb") as fp:
+        h = b"cold_air_duct Shinil AC rounded elbow 140x80 to D148"
+        fp.write(h + b" "*(80-len(h)))
+        fp.write(struct.pack("<I", len(mesh.t)))
         for (a, b, c) in mesh.t:
             p0, p1, p2 = mesh.v[a], mesh.v[b], mesh.v[c]
-            nx, ny, nz = normal(p0, p1, p2)
-            f.write(struct.pack("<3f", nx, ny, nz))
-            f.write(struct.pack("<3f", *p0))
-            f.write(struct.pack("<3f", *p1))
-            f.write(struct.pack("<3f", *p2))
-            f.write(struct.pack("<H", 0))
+            fp.write(struct.pack("<3f", *tri_normal(p0, p1, p2)))
+            fp.write(struct.pack("<3f", *p0)); fp.write(struct.pack("<3f", *p1)); fp.write(struct.pack("<3f", *p2))
+            fp.write(struct.pack("<H", 0))
 
 def main():
     mesh = Mesh()
-    total_h = build_shell(mesh)
-    build_bead(mesh, total_h)
-    build_flange(mesh)
-
-    bad, unmatched, nedges = check_watertight(mesh)
+    st = build_shell(mesh)
+    build_flange(mesh, st)
+    build_bead(mesh, st)
+    bad, unmatched, ne = check_watertight(mesh)
     write_stl(mesh, OUT_PATH)
-
-    print(f"[치수] 흡입 {INLET_W:.0f}x{INLET_D:.0f} mm, 토출 Ø{OUTLET_DIA:.0f} mm")
-    print(f"[높이] 스커트 {SKIRT_H:.0f} + 전이 {TRANS_H:.0f} + 칼라 {COLLAR_H:.0f} = {total_h:.1f} mm")
-    print(f"[플랜지] 외곽 {INLET_W+2*(WALL+FLANGE):.0f} x {INLET_D+2*(WALL+FLANGE):.0f} mm, 두께 {FLANGE_TH:.0f} mm")
+    bx, by, bz = bbox(mesh)
+    print(f"[형상] {BEND_DEG:.0f}° 상향 벤드, 흡입 {INLET_W:.0f}x{INLET_D:.0f}(모서리R{CORNER_R:.0f}) → Ø{OUTLET_DIA:.0f}")
+    print(f"[벤드] 중심선 R={BEND_R:.0f}, 흡입립 {LIP_IN:.0f}, 토출칼라 {LIP_OUT:.0f}, 벽 {WALL}")
+    print(f"[외형] 약 {bx:.0f} x {by:.0f} x {bz:.0f} mm  (X x Y x Z)")
     print(f"[메시] 정점 {len(mesh.v)}, 삼각형 {len(mesh.t)}")
-    print(f"[검증] 고유 에지 {nedges}, 미쌍(원통 내부는 다중솔리드 정상)={unmatched}")
+    print(f"[검증] 고유에지 {ne}, 비매너폴드(!=1)={bad}, 미쌍={unmatched}  → 0/0 이면 수밀")
     print(f"[출력] {OUT_PATH} ({len(mesh.t)} tri, binary STL)")
 
 if __name__ == "__main__":
