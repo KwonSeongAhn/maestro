@@ -1,0 +1,12 @@
+# pre-commit 프레임워크 설정 (https://pre-commit.com)
+#   설치: pip install pre-commit && pre-commit install
+# 커밋에 포함된 *.stl 이 "단일 watertight manifold 솔리드" 규칙을 어기면 커밋 차단.
+repos:
+  - repo: local
+    hooks:
+      - id: stl-manifold-check
+        name: STL fuse/manifold check
+        entry: python3 tools/check_stl.py
+        language: system
+        files: \.stl$
+        pass_filenames: true
