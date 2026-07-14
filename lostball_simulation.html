@@ -7312,41 +7312,30 @@ function(t,e){"object"==typeof exports&&"undefined"!=typeof module?e(exports):"f
     // ★[v894] 빔 양끝 → 차광막 좌우 상단 가로 프레임(z방향 각관, x±505 중심, 상면 y1881)에 얹힘 고정 (사용자 지시)
     //   플랜지 = 빔 끝에 3D 프린팅 일체 부착, 가로 방향(Z 프레임 길이따라 뻗음) 크기. 프레임 상면에 얹혀 볼트 관통→너트
     //   빔 끝 x±514, 프레임 각관 x[±490~520] 상면 y1881(월드). 로컬 환산 FRAME_Y 기준.
-    // ★[v904] 손그림(이미지1) 정합 — 플랜지판을 빔 "상면"이 아니라 "전면(+Z, 카메라쪽 수직면)"에 부착:
-    //   상단 빔(가로) 전면에 세운 플랜지판(Π형) + 하단 중앙 슬롯에 세로 지지대(차광막프레임) 혀가 끼워지고,
-    //   혀 좌우로 M5 볼트 2개씩(총 4개)이 한 줄로 빔 전면에 Z- 관통 체결 (헤드 +Z 노출).
-    //   구 v903 "상면 플랜지판 + 수직(Y) 볼트" 폐기 → 사용자 스케치의 전면 수직 플랜지로 교체.
-    //   기준값: 빔 중심 FRAME_Y=1866, 빔 전면 z=+12, 빔 상면 1878, 빔 하면 1854. 작업대 상면 985(=지지대 발).
+    // ★[v905] 손그림(이미지1·2) 재정합 — 차광막프레임 끝이 플랜지판을 뚫고 "앞으로 돌출된 입체 박스"가 되도록 수정:
+    //   빔 전면(+Z)에 세운 플랜지판(솔리드) + 그 중앙에서 앞으로 튀어나온 커넥터 박스(이미지1 노란 박스) +
+    //   박스에서 아래로 뻗는 차광막프레임 바(이미지2, 하단 프레임까지) + 박스 좌우 M5 볼트 2개씩(총 4).
+    //   구 v904 "판과 flush한 납작 혀" 폐기 → 판 앞으로 돌출한 박스 커넥터로 교체 (핵심 차이).
+    //   기준값: 빔 중심 FRAME_Y=1866, 빔 전면 z=+12, 판 앞면 z=+18. 작업대 상면 985(=바 발).
     [-505, 505].forEach(excFrame => {
-      // ① 세로 지지대(차광막프레임 기둥, □24) — 빔 하면(1854)에서 작업대 상면(985)까지 수직
-      const legTop  = FRAME_Y - 12;              // 1854 (빔 하면)
-      const legFoot = 985;                       // 작업대 베크판 상면
-      const legLen  = legTop - legFoot;          // 869
-      const leg = new THREE.Mesh(new THREE.BoxGeometry(24, legLen, 24), matRigPrint);
-      leg.position.set(excFrame, (legTop + legFoot) / 2, 0); leg.castShadow = true; G.add(leg);
-      if (window.__addPartNo) window.__addPartNo(leg, 'LB-30-07', 0);
-      // ①-b 지지대 혀(tongue) — 지지대 상단이 빔 전면(z12)을 타고 올라가 플랜지 슬롯에 flush로 끼워짐 (z12~18)
-      const tongue = new THREE.Mesh(new THREE.BoxGeometry(28, 42, 6), matRigPrint);
-      tongue.position.set(excFrame, FRAME_Y - 9, 15);   // y 1836~1878(슬롯 채움, 상단=빔 상면), z 12~18(판 앞면 flush)
-      tongue.castShadow = true; G.add(tongue);
-      // ② 플랜지판(Π형) — 빔 전면(z=+12)에 뒷면 밀착한 수직판, 하단 중앙 슬롯으로 혀 노출. X104 × Y56 × t6
-      const _pw = 104, _ph = 56, _slotW = 32, _slotH = 40;   // 판 폭·높이, 슬롯 폭·높이(하단 개방)
-      const _sh = new THREE.Shape();
-      _sh.moveTo(-_pw/2, -_ph/2);
-      _sh.lineTo(-_slotW/2, -_ph/2);
-      _sh.lineTo(-_slotW/2, -_ph/2 + _slotH);
-      _sh.lineTo( _slotW/2, -_ph/2 + _slotH);
-      _sh.lineTo( _slotW/2, -_ph/2);
-      _sh.lineTo( _pw/2, -_ph/2);
-      _sh.lineTo( _pw/2,  _ph/2);
-      _sh.lineTo(-_pw/2,  _ph/2);
-      _sh.closePath();
-      const fl = new THREE.Mesh(new THREE.ExtrudeGeometry(_sh, { depth: 6, bevelEnabled: false }), matRigPrint);
-      fl.position.set(excFrame, FRAME_Y, 12);   // 판 뒷면 z=12(빔 전면 밀착) → 앞면 z=18
+      // ① 플랜지판(LB-30-06) — 빔 전면(z12~18)에 밀착한 수직 솔리드판. X104 × Y52 × t6 (전면에서 구멍 보이는 판)
+      const fl = new THREE.Mesh(new THREE.BoxGeometry(104, 52, 6), matRigPrint);
+      fl.position.set(excFrame, FRAME_Y + 2, 15);   // z12~18(빔 전면 밀착), y1842~1894
       fl.castShadow = true; G.add(fl);
       if (window.__addPartNo) window.__addPartNo(fl, 'LB-30-06', 0);
-      // ③ M5 볼트 4개(2+2) — 혀 좌우 날개에 2개씩, 한 줄(y=빔 중심 1866)로 빔 전면에 Z- 관통 (헤드 +Z 노출)
-      [-42, -24, 24, 42].forEach(bx => {
+      // ② 커넥터 박스 — 차광막프레임 끝이 판을 뚫고 앞(+Z)으로 돌출한 입체 박스(이미지1 노란 박스). z18~44(판 앞면보다 26 돌출)
+      const conn = new THREE.Mesh(new THREE.BoxGeometry(38, 36, 26), matRigPrint);
+      conn.position.set(excFrame, FRAME_Y, 18 + 13);   // z18~44, y1848~1884 (판 중앙 앞으로 돌출)
+      conn.castShadow = true; G.add(conn);
+      // ③ 차광막프레임 바(LB-30-07) — 커넥터 박스에서 작업대 상면까지 하강(빔 앞면 앞쪽). X22 × Z16
+      const barTop  = FRAME_Y - 6;                 // 1860 (커넥터 박스 안쪽에서 시작)
+      const barFoot = 985;                         // 작업대 상면
+      const bar = new THREE.Mesh(new THREE.BoxGeometry(22, barTop - barFoot, 16), matRigPrint);
+      bar.position.set(excFrame, (barTop + barFoot) / 2, 27);   // z19~35 (판 앞쪽, 빔 앞면에서 앞으로)
+      bar.castShadow = true; G.add(bar);
+      if (window.__addPartNo) window.__addPartNo(bar, 'LB-30-07', 0);
+      // ④ M5 볼트 4개(2+2) — 커넥터 박스 좌우 날개에 2개씩, 한 줄(y=빔 중심 1866)로 빔 전면에 Z- 관통 (헤드 +Z 노출)
+      [-46, -30, 30, 46].forEach(bx => {
         G.add(makeHexBoltWithWasher(excFrame + bx, FRAME_Y, 20.5, 18, 'Z+', 'M5'));
       });
     });
