@@ -1,0 +1,623 @@
+[
+ {
+  "part": "P02",
+  "file": "P02_qty2_15x133x376_RIG_h0_ts0.stl",
+  "qty": 2,
+  "dims": "15x133x376",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P03",
+  "file": "P03_qty1_65x103x110_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "65x103x110",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P04",
+  "file": "P04_qty1_61x103x103_PEEK_h0_ts1.stl",
+  "qty": 1,
+  "dims": "61x103x103",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 1
+ },
+ {
+  "part": "P05",
+  "file": "P05_qty1_24x24x980_RIG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "24x24x980",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P06",
+  "file": "P06_qty2_15x133x260_RIG_h0_ts0.stl",
+  "qty": 2,
+  "dims": "15x133x260",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P07",
+  "file": "P07_qty1_24x24x480_RIG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "24x24x480",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P08",
+  "file": "P08_qty2_53x69x72_PEEK_h0_ts3.stl",
+  "qty": 2,
+  "dims": "53x69x72",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 3
+ },
+ {
+  "part": "P09",
+  "file": "P09_qty2_12x115x188_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "12x115x188",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P10",
+  "file": "P10_qty1_24x65x101_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "24x65x101",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P11",
+  "file": "P11_qty1_41x62x62_PEEK_h2_ts0.stl",
+  "qty": 1,
+  "dims": "41x62x62",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 2,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P12",
+  "file": "P12_qty2_24x24x266_RIG_h0_ts0.stl",
+  "qty": 2,
+  "dims": "24x24x266",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P13",
+  "file": "P13_qty2_3x206x240_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "3x206x240",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P14",
+  "file": "P14_qty2_24x56x86_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "24x56x86",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P16",
+  "file": "P16_qty1_24x24x200_RIG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "24x24x200",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P17",
+  "file": "P17_qty2_12x30x260_RIG_h4_ts0.stl",
+  "qty": 2,
+  "dims": "12x30x260",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 4,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P18",
+  "file": "P18_qty2_12x69x107_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "12x69x107",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P19",
+  "file": "P19_qty1_24x24x153_RIG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "24x24x153",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P20",
+  "file": "P20_qty2_37x42x56_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "37x42x56",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P21",
+  "file": "P21_qty2_4x126x174_PETG_h0_ts0.stl",
+  "qty": 2,
+  "dims": "4x126x174",
+  "material_hint": "PETG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P22",
+  "file": "P22_qty1_24x24x139_RIG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "24x24x139",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P23",
+  "file": "P23_qty1_20x62x62_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "20x62x62",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P24",
+  "file": "P24_qty2_20x46x77_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "20x46x77",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P25",
+  "file": "P25_qty1_4x96x174_PETG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "4x96x174",
+  "material_hint": "PETG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P26",
+  "file": "P26_qty2_6x92x99_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "6x92x99",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P27",
+  "file": "P27_qty1_24x24x94_RIG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "24x24x94",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P28",
+  "file": "P28_qty1_8x60x112_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "8x60x112",
+  "material_hint": "PEEK",
+  "status": "repaired",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P29",
+  "file": "P29_qty1_4x96x126_PETG_h4_ts0.stl",
+  "qty": 1,
+  "dims": "4x96x126",
+  "material_hint": "PETG",
+  "status": "solid",
+  "holes": 4,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P30",
+  "file": "P30_qty8_8x66x66_PEEK_h0_ts3.stl",
+  "qty": 8,
+  "dims": "8x66x66",
+  "material_hint": "PEEK",
+  "status": "repaired",
+  "holes": 0,
+  "thumb_sockets": 3
+ },
+ {
+  "part": "P31",
+  "file": "P31_qty1_6x76x76_PEEK_h4_ts0.stl",
+  "qty": 1,
+  "dims": "6x76x76",
+  "material_hint": "PEEK",
+  "status": "repaired",
+  "holes": 4,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P32",
+  "file": "P32_qty1_8x78x78_PEEK_h4_ts0_reinf.stl",
+  "qty": 1,
+  "dims": "8x78x78",
+  "material_hint": "PEEK",
+  "status": "reinforced(살덧붙임)",
+  "holes": 4,
+  "thumb_sockets": 0,
+  "note": "살덧붙임: 복셀 팽창 0.8mm(벽+1.6, 엣지 필렛) 후 M5 통공 4 재절삭"
+ },
+ {
+  "part": "P33",
+  "file": "P33_qty2_22x30x50_PEEK_h2_ts0.stl",
+  "qty": 2,
+  "dims": "22x30x50",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 2,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P34",
+  "file": "P34_qty1_24x24x55_RIG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "24x24x55",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P35",
+  "file": "P35_qty2_6x40x120_RIG_h4_ts0.stl",
+  "qty": 2,
+  "dims": "6x40x120",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 4,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P36",
+  "file": "P36_qty1_3x92x92_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "3x92x92",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P37",
+  "file": "P37_qty2_24x24x42_RIG_h0_ts0.stl",
+  "qty": 2,
+  "dims": "24x24x42",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P38",
+  "file": "P38_qty1_4x55x96_PETG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "4x55x96",
+  "material_hint": "PETG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P39",
+  "file": "P39_qty1_6x28x120_RIG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "6x28x120",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P40",
+  "file": "P40_qty2_6x30x96_RIG_h0_ts0.stl",
+  "qty": 2,
+  "dims": "6x30x96",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P41",
+  "file": "P41_qty1_12x12x100_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "12x12x100",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P42",
+  "file": "P42_qty1_3x66x66_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "3x66x66",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P43",
+  "file": "P43_qty2_10x14x81_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "10x14x81",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P44",
+  "file": "P44_qty1_3x48x48_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "3x48x48",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P45",
+  "file": "P45_qty1_4x12x120_RIG_h0_ts0.stl",
+  "qty": 1,
+  "dims": "4x12x120",
+  "material_hint": "RIG",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P46",
+  "file": "P46_qty2_10x14x34_PEEK_h1_ts0.stl",
+  "qty": 2,
+  "dims": "10x14x34",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 1,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P47",
+  "file": "P47_qty4_12x12x33_PEEK_h0_ts0.stl",
+  "qty": 4,
+  "dims": "12x12x33",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P48",
+  "file": "P48_qty2_3x28x48_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "3x28x48",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P49",
+  "file": "P49_qty2_10x16x16_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "10x16x16",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P50",
+  "file": "P50_qty2_10x14x14_PEEK_h1_ts0.stl",
+  "qty": 2,
+  "dims": "10x14x14",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 1,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P51",
+  "file": "P51_qty1_8x14x16_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "8x14x16",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P52",
+  "file": "P52_qty2_7x10x24_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "7x10x24",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P53",
+  "file": "P53_qty1_12x12x12_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "12x12x12",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P54",
+  "file": "P54_qty1_12x12x12_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "12x12x12",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P55",
+  "file": "P55_qty2_3x16x32_PEEK_h0_ts0.stl",
+  "qty": 2,
+  "dims": "3x16x32",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P56",
+  "file": "P56_qty2_4x16x24_PEEK_h1_ts0.stl",
+  "qty": 2,
+  "dims": "4x16x24",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 1,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P57",
+  "file": "P57_qty1_8x10x14_PEEK_h0_ts0.stl",
+  "qty": 1,
+  "dims": "8x10x14",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P58",
+  "file": "P58_qty4_3x18x18_PEEK_h0_ts0.stl",
+  "qty": 4,
+  "dims": "3x18x18",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P59",
+  "file": "P59_qty4_3x8x20_PEEK_h0_ts0.stl",
+  "qty": 4,
+  "dims": "3x8x20",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P60",
+  "file": "P60_qty4_3x8x18_PEEK_h0_ts0.stl",
+  "qty": 4,
+  "dims": "3x8x18",
+  "material_hint": "PEEK",
+  "status": "solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P61",
+  "file": "P61_THUMBSCREW_qty33_M5-P2.0.stl",
+  "qty": 33,
+  "dims": "D12x16",
+  "material_hint": "PEEK",
+  "status": "threaded",
+  "holes": "-",
+  "thumb_sockets": "-"
+ },
+ {
+  "part": "P01a",
+  "file": "P01a_qty1_101x110x142_PEEK_h0_ts0_RECON.stl",
+  "qty": 1,
+  "dims": "101x110x142",
+  "material_hint": "PEEK",
+  "status": "recon-solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ },
+ {
+  "part": "P01b",
+  "file": "P01b_qty1_88x88x104_PEEK_h0_ts3_RECON.stl",
+  "qty": 1,
+  "dims": "88x88x104",
+  "material_hint": "PEEK",
+  "status": "recon-solid",
+  "holes": 0,
+  "thumb_sockets": 3
+ },
+ {
+  "part": "P15",
+  "file": "P15_qty1_32x60x60_PEEK_h0_ts0_RECON.stl",
+  "qty": 1,
+  "dims": "32x60x60",
+  "material_hint": "PEEK",
+  "status": "recon-solid",
+  "holes": 0,
+  "thumb_sockets": 0
+ }
+]
