@@ -32,7 +32,13 @@
 5. `build_final.py` / `cut_holes.py` — 기능별 홀 절삭(THROUGH=clearHole 관통 / TAP=tapDrill 블라인드).
 6. `build_p01_p15.py` — 솔리드화 불가 부품 파라메트릭 재구성.
 7. `reinforce2.py` — **살덧붙임 규칙**(아래).
-8. `build_3dp_final.py` — 최종 명세서(docx) 생성.
+8. `enforce_rules.py` — **최종 게이트**: STL 세트에 절대규칙(수밀·살덧붙임)을 무조건 자동 적용.
+   `python3 enforce_rules.py <stl_dir> [fasteners.json] [thumbsockets.json]` — 파이프라인 마지막에 항상 호출.
+   나사류(THUMBSCREW 등)·나사산 크레스트·챔퍼는 오검 제외. 수밀 위반이 남으면 exit 1.
+9. `build_3dp_final.py` — 최종 명세서(docx) 생성.
+
+> 저장소 루트 `CLAUDE.md` = Claude Code 세션이 이 저장소에서 열릴 때 자동 로드되는 **절대규칙**.
+> 별도 지시 없이도 위 규칙(SUS201·호퍼분리·STL 개별분리·섬스크류 통일·홀 기능별·살덧붙임)이 항상 적용된다.
 
 ## 살덧붙임(Wall Reinforcement) 규칙
 `RULE_3DP_WALL_REINFORCE.md` 참조. 기준 품질: `cold_air_duct_fused.stl`
