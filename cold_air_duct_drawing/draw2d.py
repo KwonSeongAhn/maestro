@@ -5,10 +5,10 @@
 import math
 
 # ---- 원본 파라미터 (generate_stl.py 와 동일) ----
-INLET_W, INLET_D, CORNER_R = 140.0, 80.0, 20.0
+INLET_W, INLET_D, CORNER_R = 370.0, 80.0, 20.0
 WALL = 2.6
 FLANGE, FLANGE_TH, FLANGE_R = 14.0, 3.0, 10.0
-LIP_IN, BEND_R, BEND_DEG, LIP_OUT = 8.0, 80.0, 90.0, 223.0
+LIP_IN, BEND_R, BEND_DEG, LIP_OUT = 8.0, 210.0, 90.0, 223.0
 OUTLET_DIA = 142.0
 THREAD_PITCH, THREAD_LEN, THREAD_STARTS, THREAD_ROUND = 15.0, 42.0, 2, 2.0
 HOSE_DIA = 150.0
@@ -45,7 +45,7 @@ def centerline():
     return pts
 
 def hw(m, wall=True):
-    base = (1-m)*HU + m*R           # 면내 반폭(가로측): 70 -> 71
+    base = (1-m)*HU + m*R           # 벤드 평면 안(가로370) 반폭: 185 → 71
     return base + (WALL if wall else 0.0)
 
 def offset_path(sign, wall=True):
@@ -59,7 +59,7 @@ def offset_path(sign, wall=True):
 # ============================================================
 # 좌표 변환 헬퍼
 # ============================================================
-S = 1.95   # px per mm
+S = 1.15   # px per mm (부품이 커져 축척 축소)
 def T_elbow(x, y, ox, oy):
     return (ox + x*S, oy - y*S)      # part +X→right, +Y→up
 
@@ -89,7 +89,7 @@ def label(x, y, s, size=17, anchor="start", col="#111", weight="normal"):
 # ------------------------------------------------------------
 # VIEW ①  벤드 평면도  (좌측)
 # ------------------------------------------------------------
-OX, OY = 250, 940     # part 원점(0,0) 위치
+OX, OY = 205, 700     # part 원점(0,0) 위치
 outerL = offset_path(+1, True)
 outerR = offset_path(-1, True)
 boreL  = offset_path(+1, False)
@@ -99,7 +99,7 @@ def poly(pts, ox, oy):
     return " ".join(f"{'M' if i==0 else 'L'} {T_elbow(px,py,ox,oy)[0]:.1f} {T_elbow(px,py,ox,oy)[1]:.1f}" for i,(px,py) in enumerate(pts))
 
 add(f'<g>')
-add(label(150, 110, '①  벤드 평면도 (냉기 흐름 단면, +Z 방향 시)', 20, weight="bold"))
+add(label(150, 110, '①  벤드 평면도 (수평 옆-토출 · 가로370→⌀142)', 20, weight="bold"))
 # 외벽 실루엣 (닫힌 경로: 좌측 forward + 우측 backward)
 outer_all = outerL + outerR[::-1]
 add(f'<path d="{poly(outer_all, OX, OY)} Z" {OUT}/>')
@@ -107,8 +107,8 @@ add(f'<path d="{poly(outer_all, OX, OY)} Z" {OUT}/>')
 add(f'<path d="{poly(boreL, OX, OY)}" {HID}/>')
 add(f'<path d="{poly(boreR, OX, OY)}" {HID}/>')
 
-# 흡입 플랜지 (x:-3..0, y: ±(84))  — 세로 곡면(뒷면) 표시
-fy = HU + WALL + FLANGE          # 86.6 ≈ 87 반폭
+# 흡입 플랜지 (x:-3..0)  — 벤드 평면(가로370) 방향 반폭
+fy = HU + WALL + FLANGE          # 185+2.6+14 = 201.6 반폭
 x0f, x1f = -FLANGE_TH, 0.0
 p1 = T_elbow(x1f,  fy, OX, OY); p2 = T_elbow(x0f,  fy, OX, OY)
 p3 = T_elbow(x0f, -fy, OX, OY); p4 = T_elbow(x1f, -fy, OX, OY)
@@ -145,12 +145,12 @@ mcx = LIP_IN + BEND_R*math.sin(midA); mcy = BEND_R*(1-math.cos(midA))
 mp = T_elbow(mcx, mcy, OX, OY)
 add(f'<line x1="{cxp[0]:.1f}" y1="{cxp[1]:.1f}" x2="{mp[0]:.1f}" y2="{mp[1]:.1f}" {DIM}/>')
 add(f'<circle cx="{cxp[0]:.1f}" cy="{cxp[1]:.1f}" r="2.5" fill="#1a5276"/>')
-add(dim_txt((cxp[0]+mp[0])/2-6, (cxp[1]+mp[1])/2-6, 'R80', 15, "middle"))
+add(dim_txt((cxp[0]+mp[0])/2-6, (cxp[1]+mp[1])/2-6, 'R210', 15, "middle"))
 
 # ---- 치수: 전체 Y 길이(≈390), 전체 X(≈165), 벤드각 90°, LIP_IN 8 ----
 # 전체 세로(Y): flange(-fy) ~ tip
 ymin = -fy; ymax = y_tip
-dimx = OX + 175*S + 118
+dimx = OX + 300*S + 95
 ta = T_elbow(0, ymax, OX, OY); tb = T_elbow(0, ymin, OX, OY)
 add(f'<line x1="{dimx}" y1="{ta[1]:.1f}" x2="{dimx}" y2="{tb[1]:.1f}" {DIM}/>')
 for yy in (ymax, ymin):
@@ -158,7 +158,7 @@ for yy in (ymax, ymin):
     add(f'<line x1="{p[0]:.1f}" y1="{p[1]:.1f}" x2="{dimx}" y2="{p[1]:.1f}" {DIM} stroke-dasharray="3,2"/>')
 add(f'<polygon points="{dimx-4},{ta[1]+8:.0f} {dimx+4},{ta[1]+8:.0f} {dimx},{ta[1]:.1f}" fill="#1a5276"/>')
 add(f'<polygon points="{dimx-4},{tb[1]-8:.0f} {dimx+4},{tb[1]-8:.0f} {dimx},{tb[1]:.1f}" fill="#1a5276"/>')
-add(dim_txt(dimx+16, (ta[1]+tb[1])/2, '≈390', 16, "middle", rot=90))
+add(dim_txt(dimx+16, (ta[1]+tb[1])/2, '≈635 (전체 길이)', 16, "middle", rot=90))
 
 # 토출관 연장 길이 (칼라 LIP_OUT 223)
 d2 = OX + (Ce[0]+CREST)*S + 26
@@ -182,7 +182,7 @@ p = T_elbow(4, -fy, OX, OY)
 add(dim_txt(p[0], p[1]+26, 'LIP 8', 13, "middle"))
 # 흡입 폭 표기
 p = T_elbow(0, 0, OX, OY)
-add(dim_txt(p[0]-40, p[1]+4, '140', 15, "middle", rot=90))
+add(dim_txt(p[0]-16, p[1]+4, '370', 15, "middle", rot=90))
 add(f'</g>')
 
 # ------------------------------------------------------------
@@ -204,7 +204,7 @@ def rrect_pts(hu, hv, rc, cx, cy, s, curveflat=False):
 def path_of(pts):
     return " ".join(f"{'M' if i==0 else 'L'} {x:.1f} {y:.1f}" for i,(x,y) in enumerate(pts))+" Z"
 
-CX2, CY2, s2 = 1180, 315, 1.95
+CX2, CY2, s2 = 1180, 315, 1.55
 add(label(CX2, 150, '②  흡입 플랜지면  (에어컨 밀착측)', 20, "middle", weight="bold"))
 # 플랜지 외곽
 add(f'<path d="{path_of(rrect_pts(HU+WALL+FLANGE, HV+WALL+FLANGE, FLANGE_R+FLANGE, CX2, CY2, s2))}" {OUT}/>')
@@ -229,7 +229,7 @@ xa=CX2-HU*s2; xb=CX2+HU*s2
 add(f'<line x1="{xa:.1f}" y1="{yb}" x2="{xb:.1f}" y2="{yb}" {DIM}/>')
 add(f'<polygon points="{xa+8:.0f},{yb-4} {xa+8:.0f},{yb+4} {xa:.1f},{yb}" fill="#1a5276"/>')
 add(f'<polygon points="{xb-8:.0f},{yb-4} {xb-8:.0f},{yb+4} {xb:.1f},{yb}" fill="#1a5276"/>')
-add(dim_txt(CX2, yb+18, '140 (흡입 가로)', 15, "middle"))
+add(dim_txt(CX2, yb+18, '370 (흡입 가로)', 15, "middle"))
 xr = CX2 + (HU+WALL+FLANGE)*s2 + 34
 za=CY2-HV*s2; zb=CY2+HV*s2
 add(f'<line x1="{xr}" y1="{za:.1f}" x2="{xr}" y2="{zb:.1f}" {DIM}/>')
@@ -286,11 +286,11 @@ add(dim_txt(DX+165, DY+21, 't2.6', 13, "start"))
 # ============================================================
 TBx, TBy, TBw = 815, 964, 826
 rows = [
-    ("품명 / PART", "냉기 유도 덕트 (90° 벤드 어댑터)"),
+    ("품명 / PART", "냉기 유도 덕트 (90° 옆-토출 엘보 · 가로 370)"),
     ("용도", "신일 창문형 에어컨 냉기토출면 밀착 → Ø150 호스 유도"),
-    ("전체치수", "≈ 178 (X) × 390 (Y) × 151 (Z) mm"),
-    ("흡입 / 토출", "사각 140×80 R20  →  원통 보어 ⌀142"),
-    ("벤드 / 나사", "센터라인 R80, 90°  ·  외부수나사 ⌀151 P15 2줄 L42"),
+    ("전체치수", "≈ 308 (X) × 635 (Y) × 151 (Z) mm   ※원본보다 커짐"),
+    ("흡입 / 토출", "사각 370×80 R20  →  원통 보어 ⌀142 (옆으로 토출)"),
+    ("벤드 / 나사", "센터라인 R210, 90°  ·  외부수나사 ⌀151 P15 2줄 L42"),
     ("벽두께 / 재질", "2.6 mm  ·  PETG(내열·내습) 권장, 채움 15%↑"),
     ("공차 / 단위", "일반공차 ±0.5, 실측 후 ±1~2 여유  ·  단위 mm"),
     ("출처 세션", "claude/ac-noise-duct-3d-fzpgaq  (cold_air_duct)"),
@@ -311,12 +311,12 @@ NX, NY = 70, 992
 notes = [
     "NOTES",
     "1. 치수 단위 mm. 인쇄 전 에어컨 실토출구를 실측해",
-    "   흡입 140×80·⌀142 를 맞출 것 (+1~2 여유).",
-    "2. 외부 수나사(⌀151, P15, 2줄, 끝단 L42)에",
-    "   Ø150 유연호스/커넥터를 돌려 체결.",
-    "3. 접촉(뒷)면은 세로 아래 1/3부터 R≈250 곡면 —",
-    "   에어컨 몸체 밀착 (상단 새그 ~11.7).",
-    "4. 원본: generate_stl.py / cold_air_duct.scad / *_viewer.html.",
+    "   흡입 370×80·⌀142 를 맞출 것 (+1~2 여유).",
+    "2. ★가로 370이 벤드 평면 안에 있어 R80으론 벽이 겹침 →",
+    "   구조·방향 유지하고 벤드반경만 R210으로 키움(안쪽 여유 ~22).",
+    "3. 전체 ~635mm로 길어짐 → 베드 초과 시 토출관 분할인쇄/대각배치.",
+    "4. 외부수나사(⌀151,P15,2줄,L42)에 Ø150 호스 체결. 벽 3줄↑.",
+    "5. 원본: generate_stl.py (INLET_W=370, BEND_R=210).",
 ]
 add(f'<rect x="{NX-12}" y="{NY-22}" width="700" height="{len(notes)*22+12}" fill="#f7f9fb" stroke="#111" stroke-width="1"/>')
 for i,n in enumerate(notes):
