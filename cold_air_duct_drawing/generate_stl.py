@@ -22,22 +22,21 @@ import struct
 # ----------------------------------------------------------------------------
 # 파라미터 (mm)
 # ----------------------------------------------------------------------------
-# ★[가로 370 확장] 원본 fused STL과 동일 구조(수평 옆-토출 엘보). 개구부 가로만 140→370.
-#   가로 370은 벤드 평면(X-Y) 안에 있어 반폭 185 > R80 → 안쪽벽 자기교차.
-#   구조·방향은 그대로 두고 BEND_R 만 키워 유효화(아래 BEND_R 참조).
-INLET_W    = 370.0   # 사각 흡입구 가로 (수평, Y, 벤드 평면 내)  ← 140 → 370
-INLET_D    = 80.0    # 사각 흡입구 세로 (수직, Z, 평면 밖)
+# ★[스케치판독] 세로 370 프로파일 = 흡입부가 '세로(수직) 370'. 가로 80은 벤드 평면 안(타이트 벤드).
+#   세로 370은 벤드 평면 밖(수직축=Z)에 있어 R80 유효(반폭 40<80). 옆-토출 방향 유지.
+INLET_W    = 80.0    # 사각 흡입구 가로 (수평, Y, 벤드 평면 내) ← 타이트 벤드되는 치수
+INLET_D    = 370.0   # 사각 흡입구 세로 (수직, Z, 평면 밖)      ← 스케치의 세로 370
 CORNER_R   = 20.0    # ★ 단면 사각 모서리 라운드 반경 (모서리 R)
 OUTLET_DIA = 142.0   # 원통 토출 보어(내경). 수나사 체결용으로 Ø150 호스 안에 들어가도록 축소.
 BEND_DEG   = 90.0    # 벤드 각도 (90=옆으로 수평, 180=반대편)
-BEND_R     = 210.0   # ★[가로370] 반폭 185 > 벤드반경 이면 자기교차 → R80→R210(안쪽 여유 ~22mm)
+BEND_R     = 80.0    # ★[스케치] 벤드 평면 안 치수=가로80(반폭40)<R80 → 타이트 벤드 유효(원본값 복귀)
 LIP_IN     = 8.0     # 사각 흡입 직선 스냅(+X) — 최소화(거의 흡입면서 바로 꺾임)
 LIP_OUT    = 223.0   # 원통 토출 직선 칼라 길이(연장). 전체 ~390mm. 나사는 끝단만.
 WALL       = 2.6     # 벽 두께
 FLANGE     = 14.0    # 흡입 수직 플랜지 폭 (0=없음)
 FLANGE_TH  = 3.0     # 플랜지 두께(X)
 FLANGE_R   = 10.0    # ★ 플랜지 외곽 모서리 라운드
-MOUNT_R    = 250.0   # ★ 에어컨 접촉면 곡률 반경(추정). 세로(수직) 방향 곡면. 0=평면 (원본 동일)
+MOUNT_R    = 0.0     # ★[스케치] 접촉면 평면(곡면 off). 필요시 재설정
 MOUNT_START= 1.0/3   # ★ 세로 아래에서 이 비율 지점부터 곡면 시작(그 아래는 평면). 1/3
 BEAD_T     = 0.0     # 호스 이탈방지 비드(나사산으로 대체, 0=없음)
 BEAD_H     = 3.0     # 비드 높이(축)
@@ -57,7 +56,7 @@ N          = 160     # 원주 분할
 BEND_STEPS = 80      # 벤드 분할
 LIP_STEPS  = 5       # 직선 립 분할
 
-OUT_PATH = "cold_air_duct_370.stl"
+OUT_PATH = "cold_air_duct_sketch.stl"
 
 # 벤드 평면 = X-Y(수평).  U=면내(입구에서 Y, 가로140),  V=면밖(Z, 세로80)
 HU = INLET_W / 2.0   # U-반치수(가로 140, 벤드 평면 내)
@@ -305,7 +304,7 @@ def bbox(mesh):
 
 def write_stl(mesh, path):
     with open(path, "wb") as fp:
-        h = b"cold_air_duct Shinil AC sideways elbow 370x80 to D142"
+        h = b"cold_air_duct Shinil AC elbow inlet W80 x H370 to D142"
         fp.write(h + b" "*(80-len(h)))
         fp.write(struct.pack("<I", len(mesh.t)))
         for (a, b, c) in mesh.t:
@@ -324,7 +323,7 @@ def main():
     write_stl(mesh, OUT_PATH)
     bx, by, bz = bbox(mesh)
     crest = OUTLET_DIA + 2*WALL + 2*THREAD_ROUND
-    print(f"[형상] {BEND_DEG:.0f}° 수평 옆-토출 벤드, 흡입 {INLET_W:.0f}x{INLET_D:.0f}(R{CORNER_R:.0f}) → Ø{OUTLET_DIA:.0f} 보어 원통")
+    print(f"[형상] {BEND_DEG:.0f}° 옆-토출 벤드, 흡입 가로{INLET_W:.0f}x세로{INLET_D:.0f}(R{CORNER_R:.0f}) → Ø{OUTLET_DIA:.0f} 보어 원통")
     print(f"[나사] 외부 수나사 {THREAD_STARTS}줄, 피치 {THREAD_PITCH:.0f}, 마루 Ø{crest:.1f} (호스 Ø{HOSE_DIA:.0f} 체결)")
     if MOUNT_R > 0:
         oz_full = ZH+WALL+FLANGE
