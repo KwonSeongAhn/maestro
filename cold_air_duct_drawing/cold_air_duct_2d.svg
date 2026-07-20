@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1680" height="1290" viewBox="0 0 1680 1290" font-family="Helvetica,Arial,sans-serif">
+<rect width="1680" height="1290" fill="#ffffff"/>
+<rect x="20" y="20" width="1640" height="1250" fill="none" stroke="#111" stroke-width="2.5"/>
+<rect x="34" y="34" width="1612" height="1222" fill="none" stroke="#111" stroke-width="1"/>
+<g>
+<text x="150" y="110" font-size="20" fill="#111" text-anchor="start" font-weight="bold">①  벤드 평면도 (옆-토출 · 가로80 방향 R80 벤드→⌀142)</text>
+<path d="M 250.0 755.5 L 264.0 755.5 L 265.7 755.4 L 267.4 755.2 L 269.1 754.9 L 270.8 754.4 L 272.4 753.8 L 274.0 753.1 L 275.6 752.3 L 277.1 751.4 L 278.5 750.4 L 279.9 749.3 L 281.2 748.2 L 282.5 746.9 L 283.7 745.5 L 284.8 744.1 L 285.8 742.6 L 286.8 741.1 L 287.6 739.5 L 288.4 737.9 L 289.1 736.2 L 289.7 734.5 L 290.2 732.8 L 290.6 731.0 L 291.0 729.3 L 291.2 727.5 L 291.4 725.7 L 291.5 724.0 L 291.5 722.2 L 291.5 720.5 L 291.3 718.8 L 291.1 717.1 L 290.8 715.4 L 290.5 713.8 L 290.1 712.3 L 289.6 710.7 L 289.1 709.2 L 288.5 707.8 L 287.9 706.4 L 287.3 705.1 L 286.6 703.8 L 285.9 702.6 L 285.2 701.5 L 284.4 700.4 L 283.7 699.4 L 282.9 698.4 L 282.2 697.5 L 281.4 696.7 L 280.7 695.9 L 280.0 695.2 L 279.3 694.5 L 278.7 693.9 L 278.1 693.4 L 277.5 692.9 L 277.0 692.4 L 276.6 692.0 L 276.2 691.6 L 275.8 691.2 L 275.6 690.9 L 275.4 690.6 L 275.2 690.3 L 275.2 690.0 L 275.2 670.5 L 275.2 651.0 L 275.2 631.5 L 275.2 612.0 L 275.2 592.4 L 275.2 572.9 L 275.2 553.4 L 275.2 533.9 L 275.2 514.4 L 275.2 494.9 L 275.2 475.4 L 275.2 455.8 L 275.2 436.3 L 275.2 416.8 L 275.2 397.3 L 275.2 377.8 L 275.2 358.3 L 275.2 338.8 L 275.2 319.3 L 275.2 299.8 L 532.8 299.8 L 532.8 319.3 L 532.8 338.8 L 532.8 358.3 L 532.8 377.8 L 532.8 397.3 L 532.8 416.8 L 532.8 436.3 L 532.8 455.8 L 532.8 475.4 L 532.8 494.9 L 532.8 514.4 L 532.8 533.9 L 532.8 553.4 L 532.8 572.9 L 532.8 592.4 L 532.8 612.0 L 532.8 631.5 L 532.8 651.0 L 532.8 670.5 L 532.8 690.0 L 532.7 697.0 L 532.3 704.1 L 531.6 711.1 L 530.6 718.0 L 529.4 724.9 L 528.0 731.8 L 526.3 738.6 L 524.3 745.3 L 522.2 752.0 L 519.8 758.5 L 517.1 765.0 L 514.3 771.3 L 511.2 777.5 L 508.0 783.6 L 504.5 789.6 L 500.9 795.5 L 497.0 801.2 L 493.1 806.7 L 488.9 812.1 L 484.6 817.4 L 480.2 822.5 L 475.6 827.4 L 470.9 832.2 L 466.0 836.8 L 461.1 841.2 L 456.0 845.5 L 450.9 849.6 L 445.6 853.5 L 440.3 857.3 L 434.9 860.9 L 429.4 864.3 L 423.9 867.6 L 418.3 870.7 L 412.7 873.6 L 407.0 876.4 L 401.3 879.0 L 395.6 881.5 L 389.9 883.8 L 384.1 886.0 L 378.3 888.0 L 372.5 889.9 L 366.7 891.6 L 360.9 893.2 L 355.1 894.7 L 349.3 896.0 L 343.6 897.3 L 337.8 898.4 L 332.0 899.4 L 326.3 900.3 L 320.6 901.1 L 314.9 901.8 L 309.2 902.4 L 303.5 903.0 L 297.8 903.4 L 292.1 903.8 L 286.5 904.1 L 280.9 904.3 L 275.2 904.4 L 269.6 904.5 L 264.0 904.5 L 250.0 904.5 Z" stroke="#111" stroke-width="2" fill="none"/>
+<path d="M 250.0 760.0 L 264.0 760.0 L 265.8 759.9 L 267.7 759.7 L 269.5 759.4 L 271.2 758.9 L 273.0 758.3 L 274.7 757.6 L 276.4 756.8 L 278.0 755.9 L 279.6 754.9 L 281.1 753.7 L 282.5 752.5 L 283.9 751.2 L 285.2 749.8 L 286.4 748.4 L 287.5 746.8 L 288.6 745.3 L 289.6 743.6 L 290.5 741.9 L 291.3 740.2 L 292.0 738.4 L 292.6 736.7 L 293.1 734.8 L 293.6 733.0 L 293.9 731.2 L 294.2 729.3 L 294.4 727.5 L 294.5 725.7 L 294.5 723.9 L 294.4 722.1 L 294.3 720.3 L 294.1 718.6 L 293.8 716.9 L 293.5 715.2 L 293.1 713.6 L 292.7 712.0 L 292.2 710.5 L 291.7 709.0 L 291.1 707.6 L 290.5 706.2 L 289.8 704.9 L 289.2 703.7 L 288.5 702.5 L 287.8 701.3 L 287.1 700.3 L 286.4 699.3 L 285.7 698.3 L 285.0 697.4 L 284.3 696.6 L 283.7 695.8 L 283.1 695.1 L 282.5 694.4 L 282.0 693.8 L 281.5 693.2 L 281.1 692.7 L 280.7 692.2 L 280.4 691.7 L 280.1 691.3 L 279.9 690.8 L 279.8 690.4 L 279.8 690.0 L 279.8 670.5 L 279.8 651.0 L 279.8 631.5 L 279.8 612.0 L 279.8 592.4 L 279.8 572.9 L 279.8 553.4 L 279.8 533.9 L 279.8 514.4 L 279.8 494.9 L 279.8 475.4 L 279.8 455.8 L 279.8 436.3 L 279.8 416.8 L 279.8 397.3 L 279.8 377.8 L 279.8 358.3 L 279.8 338.8 L 279.8 319.3 L 279.8 299.8" stroke="#111" stroke-width="1" fill="none" stroke-dasharray="7,4"/>
+<path d="M 250.0 900.0 L 264.0 900.0 L 269.5 900.0 L 275.0 899.9 L 280.5 899.7 L 286.0 899.5 L 291.5 899.3 L 297.1 898.9 L 302.6 898.5 L 308.2 898.0 L 313.8 897.4 L 319.4 896.7 L 325.0 896.0 L 330.6 895.1 L 336.3 894.1 L 341.9 893.0 L 347.6 891.8 L 353.3 890.5 L 359.0 889.1 L 364.7 887.6 L 370.3 885.9 L 376.0 884.0 L 381.7 882.1 L 387.4 880.0 L 393.0 877.7 L 398.7 875.3 L 404.3 872.8 L 409.8 870.1 L 415.4 867.2 L 420.9 864.2 L 426.3 861.0 L 431.7 857.7 L 437.0 854.2 L 442.2 850.5 L 447.4 846.6 L 452.5 842.6 L 457.5 838.4 L 462.3 834.1 L 467.1 829.6 L 471.8 824.9 L 476.3 820.1 L 480.7 815.1 L 484.9 809.9 L 489.0 804.6 L 492.9 799.2 L 496.7 793.6 L 500.3 787.9 L 503.7 782.0 L 506.9 776.0 L 510.0 769.9 L 512.8 763.7 L 515.4 757.4 L 517.7 750.9 L 519.9 744.4 L 521.8 737.8 L 523.5 731.1 L 524.9 724.4 L 526.1 717.5 L 527.0 710.7 L 527.7 703.8 L 528.1 696.9 L 528.2 690.0 L 528.2 670.5 L 528.2 651.0 L 528.2 631.5 L 528.2 612.0 L 528.2 592.4 L 528.2 572.9 L 528.2 553.4 L 528.2 533.9 L 528.2 514.4 L 528.2 494.9 L 528.2 475.4 L 528.2 455.8 L 528.2 436.3 L 528.2 416.8 L 528.2 397.3 L 528.2 377.8 L 528.2 358.3 L 528.2 338.8 L 528.2 319.3 L 528.2 299.8" stroke="#111" stroke-width="1" fill="none" stroke-dasharray="7,4"/>
+<path d="M 250.0 731.0 L 244.8 731.0 L 244.8 929.0 L 250.0 929.0 Z" stroke="#111" stroke-width="2" fill="none"/>
+<line x1="250.0" y1="743.2" x2="244.8" y2="743.2" stroke="#111" stroke-width="1" fill="none" stroke-dasharray="7,4"/>
+<line x1="250.0" y1="916.8" x2="244.8" y2="916.8" stroke="#111" stroke-width="1" fill="none" stroke-dasharray="7,4"/>
+<line x1="536.3" y1="305.0" x2="536.3" y2="378.5" stroke="#111" stroke-width="1.1" fill="none"/>
+<line x1="532.8" y1="305.0" x2="536.3" y2="309.4" stroke="#111" stroke-width="0.7"/>
+<line x1="532.8" y1="318.1" x2="536.3" y2="322.5" stroke="#111" stroke-width="0.7"/>
+<line x1="532.8" y1="331.2" x2="536.3" y2="335.6" stroke="#111" stroke-width="0.7"/>
+<line x1="532.8" y1="344.4" x2="536.3" y2="348.8" stroke="#111" stroke-width="0.7"/>
+<line x1="532.8" y1="357.5" x2="536.3" y2="361.9" stroke="#111" stroke-width="0.7"/>
+<line x1="532.8" y1="370.6" x2="536.3" y2="375.0" stroke="#111" stroke-width="0.7"/>
+<line x1="271.7" y1="305.0" x2="271.7" y2="378.5" stroke="#111" stroke-width="1.1" fill="none"/>
+<line x1="275.2" y1="305.0" x2="271.7" y2="309.4" stroke="#111" stroke-width="0.7"/>
+<line x1="275.2" y1="318.1" x2="271.7" y2="322.5" stroke="#111" stroke-width="0.7"/>
+<line x1="275.2" y1="331.2" x2="271.7" y2="335.6" stroke="#111" stroke-width="0.7"/>
+<line x1="275.2" y1="344.4" x2="271.7" y2="348.8" stroke="#111" stroke-width="0.7"/>
+<line x1="275.2" y1="357.5" x2="271.7" y2="361.9" stroke="#111" stroke-width="0.7"/>
+<line x1="275.2" y1="370.6" x2="271.7" y2="375.0" stroke="#111" stroke-width="0.7"/>
+<path d="M 250.0 830.0 L 264.0 830.0 L 267.7 830.0 L 271.3 829.8 L 275.0 829.6 L 278.6 829.2 L 282.3 828.8 L 285.9 828.3 L 289.5 827.7 L 293.1 826.9 L 296.7 826.1 L 300.2 825.2 L 303.8 824.2 L 307.3 823.1 L 310.7 822.0 L 314.2 820.7 L 317.6 819.3 L 320.9 817.9 L 324.3 816.4 L 327.6 814.7 L 330.8 813.0 L 334.0 811.2 L 337.1 809.4 L 340.2 807.4 L 343.3 805.4 L 346.3 803.3 L 349.2 801.1 L 352.1 798.8 L 354.9 796.5 L 357.7 794.0 L 360.4 791.6 L 363.0 789.0 L 365.6 786.4 L 368.0 783.7 L 370.5 780.9 L 372.8 778.1 L 375.1 775.2 L 377.3 772.3 L 379.4 769.3 L 381.4 766.2 L 383.4 763.1 L 385.2 760.0 L 387.0 756.8 L 388.7 753.6 L 390.4 750.3 L 391.9 746.9 L 393.3 743.6 L 394.7 740.2 L 396.0 736.7 L 397.1 733.3 L 398.2 729.8 L 399.2 726.2 L 400.1 722.7 L 400.9 719.1 L 401.7 715.5 L 402.3 711.9 L 402.8 708.3 L 403.2 704.6 L 403.6 701.0 L 403.8 697.3 L 404.0 693.7 L 404.0 690.0 L 404.0 670.5 L 404.0 651.0 L 404.0 631.5 L 404.0 612.0 L 404.0 592.4 L 404.0 572.9 L 404.0 553.4 L 404.0 533.9 L 404.0 514.4 L 404.0 494.9 L 404.0 475.4 L 404.0 455.8 L 404.0 436.3 L 404.0 416.8 L 404.0 397.3 L 404.0 377.8 L 404.0 358.3 L 404.0 338.8 L 404.0 319.3 L 404.0 299.8" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="264.0" y1="690.0" x2="363.0" y2="789.0" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<circle cx="264.0" cy="690.0" r="2.5" fill="#1a5276"/>
+<text x="307.49747468305833" y="733.4974746830583" font-size="15" fill="#1a5276" text-anchor="middle">R80</text>
+<line x1="593.75" y1="299.8" x2="593.75" y2="929.0" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<line x1="250.0" y1="299.8" x2="593.75" y2="299.8" stroke="#1a5276" stroke-width="0.9" fill="none" stroke-dasharray="3,2"/>
+<line x1="250.0" y1="929.0" x2="593.75" y2="929.0" stroke="#1a5276" stroke-width="0.9" fill="none" stroke-dasharray="3,2"/>
+<polygon points="589.75,308 597.75,308 593.75,299.8" fill="#1a5276"/>
+<polygon points="589.75,921 597.75,921 593.75,929.0" fill="#1a5276"/>
+<text x="609.75" y="614.4" font-size="16" fill="#1a5276" text-anchor="middle" transform="rotate(90 609.75 614.4)">≈360 (Y 길이)</text>
+<line x1="562.3" y1="690.0" x2="562.3" y2="299.8" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<polygon points="558.3,682 566.3,682 562.3,690.0" fill="#1a5276"/>
+<polygon points="558.3,308 566.3,308 562.3,299.8" fill="#1a5276"/>
+<text x="576.3" y="494.875" font-size="15" fill="#1a5276" text-anchor="middle" transform="rotate(90 576.3 494.875)">223</text>
+<line x1="608.3" y1="305.0" x2="608.3" y2="378.5" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<text x="621.3" y="341.75" font-size="14" fill="#1a5276" text-anchor="middle" transform="rotate(90 621.3 341.75)">42</text>
+<text x="292.0" y="696.0" font-size="16" fill="#c0392b" text-anchor="start">90°</text>
+<text x="257.0" y="955.05" font-size="13" fill="#1a5276" text-anchor="middle">LIP 8</text>
+<text x="234.0" y="834.0" font-size="15" fill="#1a5276" text-anchor="middle" transform="rotate(90 234.0 834.0)">80</text>
+</g>
+<text x="1120" y="150" font-size="20" fill="#111" text-anchor="middle" font-weight="bold">②  흡입 플랜지면  (에어컨 밀착측)</text>
+<path d="M 1160.8 194.1 L 1160.2 189.7 L 1158.4 185.5 L 1155.7 181.9 L 1152.1 179.2 L 1147.9 177.4 L 1143.5 176.8 L 1096.5 176.8 L 1092.1 177.4 L 1087.9 179.2 L 1084.3 181.9 L 1081.6 185.5 L 1079.8 189.7 L 1079.2 194.1 L 1079.2 449.9 L 1079.8 454.3 L 1081.6 458.5 L 1084.3 462.1 L 1087.9 464.8 L 1092.1 466.6 L 1096.5 467.2 L 1143.5 467.2 L 1147.9 466.6 L 1152.1 464.8 L 1155.7 462.1 L 1158.4 458.5 L 1160.2 454.3 L 1160.8 449.9 Z" stroke="#111" stroke-width="2" fill="none"/>
+<path d="M 1150.7 203.2 L 1150.1 199.0 L 1148.5 195.1 L 1145.9 191.7 L 1142.5 189.1 L 1138.6 187.5 L 1134.4 186.9 L 1105.6 186.9 L 1101.4 187.5 L 1097.5 189.1 L 1094.1 191.7 L 1091.5 195.1 L 1089.9 199.0 L 1089.3 203.2 L 1089.3 440.8 L 1089.9 445.0 L 1091.5 448.9 L 1094.1 452.3 L 1097.5 454.9 L 1101.4 456.5 L 1105.6 457.1 L 1134.4 457.1 L 1138.6 456.5 L 1142.5 454.9 L 1145.9 452.3 L 1148.5 448.9 L 1150.1 445.0 L 1150.7 440.8 Z" stroke="#111" stroke-width="2" fill="none"/>
+<path d="M 1148.8 203.2 L 1148.3 199.5 L 1146.9 196.0 L 1144.6 193.0 L 1141.6 190.7 L 1138.1 189.3 L 1134.4 188.8 L 1105.6 188.8 L 1101.9 189.3 L 1098.4 190.7 L 1095.4 193.0 L 1093.1 196.0 L 1091.7 199.5 L 1091.2 203.2 L 1091.2 440.8 L 1091.7 444.5 L 1093.1 448.0 L 1095.4 451.0 L 1098.4 453.3 L 1101.9 454.7 L 1105.6 455.2 L 1134.4 455.2 L 1138.1 454.7 L 1141.6 453.3 L 1144.6 451.0 L 1146.9 448.0 L 1148.3 444.5 L 1148.8 440.8 Z" stroke="#111" stroke-width="1" fill="none" stroke-dasharray="7,4"/>
+<circle cx="1120.0" cy="181.9" r="1.6" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="1112.0" y1="181.9" x2="1128.0" y2="181.9" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="1120.0" y1="173.9" x2="1120.0" y2="189.9" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<circle cx="1120.0" cy="462.1" r="1.6" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="1112.0" y1="462.1" x2="1128.0" y2="462.1" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="1120.0" y1="454.1" x2="1120.0" y2="470.1" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<circle cx="1155.7" cy="322.0" r="1.6" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="1147.7" y1="322.0" x2="1163.7" y2="322.0" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="1155.7" y1="314.0" x2="1155.7" y2="330.0" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<circle cx="1084.3" cy="322.0" r="1.6" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="1076.3" y1="322.0" x2="1092.3" y2="322.0" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="1084.3" y1="314.0" x2="1084.3" y2="330.0" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="1072.0" y1="322" x2="1168.0" y2="322" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="1120" y1="169.6" x2="1120" y2="474.4" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="1091.2" y1="501.152" x2="1148.8" y2="501.152" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<polygon points="1099,497.152 1099,505.152 1091.2,501.152" fill="#1a5276"/>
+<polygon points="1141,497.152 1141,505.152 1148.8,501.152" fill="#1a5276"/>
+<text x="1120" y="519.152" font-size="15" fill="#1a5276" text-anchor="middle">80 (흡입 가로)</text>
+<line x1="1194.752" y1="188.8" x2="1194.752" y2="455.2" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<polygon points="1190.752,197 1198.752,197 1194.752,188.8" fill="#1a5276"/>
+<polygon points="1190.752,447 1198.752,447 1194.752,455.2" fill="#1a5276"/>
+<text x="1210.752" y="322" font-size="15" fill="#1a5276" text-anchor="middle" transform="rotate(90 1210.752 322)">370 (흡입 세로)</text>
+<line x1="1095.5" y1="193.1" x2="1049.2" y2="170.8" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<text x="1045.248" y="166.848" font-size="14" fill="#111" text-anchor="end">R20</text>
+<text x="1174.752" y="174.848" font-size="14" fill="#111" text-anchor="start" font-weight="normal">4× ⌀4.5 (4변 중앙)</text>
+<text x="1120" y="541.152" font-size="13" fill="#111" text-anchor="middle">플랜지폭 14 · 외곽 R10 · 벽 스커트 t2.6</text>
+<text x="1130" y="610" font-size="20" fill="#111" text-anchor="middle" font-weight="bold">③  토출 단면  (호스 체결측)</text>
+<circle cx="1130" cy="770" r="121.0" stroke="#111" stroke-width="2" fill="none"/>
+<circle cx="1130" cy="770" r="117.8" stroke="#111" stroke-width="1" fill="none" stroke-dasharray="2,3"/>
+<circle cx="1130" cy="770" r="113.6" stroke="#111" stroke-width="2" fill="none"/>
+<line x1="989.8" y1="770" x2="1270.2" y2="770" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="1130" y1="629.8" x2="1130" y2="910.2" stroke="#c0392b" stroke-width="0.9" fill="none" stroke-dasharray="14,3,2,3"/>
+<line x1="1223.1" y1="704.8" x2="1289.3" y2="668.3" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<text x="1293.328" y="666.2719999999999" font-size="15" fill="#1a5276" text-anchor="start">⌀142 (보어)</text>
+<line x1="1025.2" y1="709.5" x2="999.4" y2="663.8" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<text x="995.424" y="661.824" font-size="15" fill="#1a5276" text-anchor="end">⌀151 나사마루</text>
+<line x1="1220.2" y1="845.7" x2="1275.8" y2="871.4" stroke="#1a5276" stroke-width="0.9" fill="none"/>
+<text x="1279.776" y="875.376" font-size="14" fill="#1a5276" text-anchor="start">⌀147.2 골</text>
+<text x="1130" y="924.96" font-size="15" fill="#111" text-anchor="middle" font-weight="normal">외부 수나사  P15 · 2줄 · L42  (Ø150 호스 체결)</text>
+<text x="1410" y="462" font-size="16" fill="#111" text-anchor="start" font-weight="bold">단면 상세 (벽두께)</text>
+<rect x="1410" y="480" width="150" height="34" fill="#dfe9f2" stroke="#111" stroke-width="1.5"/>
+<line x1="1410" y1="480" x2="1560" y2="480" stroke="#111" stroke-width="2"/>
+<line x1="1410" y1="514" x2="1560" y2="514" stroke="#111" stroke-width="2"/>
+<text x="1485" y="536" font-size="14" fill="#111" text-anchor="middle">WALL 2.6  (벽 3줄↑ 권장)</text>
+<text x="1575" y="501" font-size="13" fill="#1a5276" text-anchor="start">t2.6</text>
+<rect x="815" y="964" width="826" height="234" fill="none" stroke="#111" stroke-width="2"/>
+<rect x="815" y="964" width="826" height="34" fill="#111"/>
+<text x="829" y="987" font-size="18" fill="#fff" text-anchor="start" font-weight="bold">2D 제작 도면  ·  COLD-AIR GUIDE DUCT</text>
+<line x1="815" y1="998" x2="1641" y2="998" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="965" y1="998" x2="965" y2="1023" stroke="#111" stroke-width="0.9" fill="none"/>
+<text x="827" y="1016" font-size="13" fill="#1a5276" text-anchor="start" font-weight="bold">품명 / PART</text>
+<text x="975" y="1016" font-size="13" fill="#111" text-anchor="start" font-weight="normal">냉기 유도 덕트 (90° 옆-토출 엘보 · 세로 370)</text>
+<line x1="815" y1="1023" x2="1641" y2="1023" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="965" y1="1023" x2="965" y2="1048" stroke="#111" stroke-width="0.9" fill="none"/>
+<text x="827" y="1041" font-size="13" fill="#1a5276" text-anchor="start" font-weight="bold">용도</text>
+<text x="975" y="1041" font-size="13" fill="#111" text-anchor="start" font-weight="normal">신일 창문형 에어컨 냉기토출면 밀착 → Ø150 호스 유도</text>
+<line x1="815" y1="1048" x2="1641" y2="1048" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="965" y1="1048" x2="965" y2="1073" stroke="#111" stroke-width="0.9" fill="none"/>
+<text x="827" y="1066" font-size="13" fill="#1a5276" text-anchor="start" font-weight="bold">전체치수</text>
+<text x="975" y="1066" font-size="13" fill="#111" text-anchor="start" font-weight="normal">≈ 166 (X) × 360 (Y) × 403 (Z) mm</text>
+<line x1="815" y1="1073" x2="1641" y2="1073" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="965" y1="1073" x2="965" y2="1098" stroke="#111" stroke-width="0.9" fill="none"/>
+<text x="827" y="1091" font-size="13" fill="#1a5276" text-anchor="start" font-weight="bold">흡입 / 토출</text>
+<text x="975" y="1091" font-size="13" fill="#111" text-anchor="start" font-weight="normal">사각 80(가로)×370(세로) R20  →  원통 보어 ⌀142 (옆으로 토출)</text>
+<line x1="815" y1="1098" x2="1641" y2="1098" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="965" y1="1098" x2="965" y2="1123" stroke="#111" stroke-width="0.9" fill="none"/>
+<text x="827" y="1116" font-size="13" fill="#1a5276" text-anchor="start" font-weight="bold">벤드 / 나사</text>
+<text x="975" y="1116" font-size="13" fill="#111" text-anchor="start" font-weight="normal">센터라인 R80, 90°  ·  외부수나사 ⌀151 P15 2줄 L42</text>
+<line x1="815" y1="1123" x2="1641" y2="1123" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="965" y1="1123" x2="965" y2="1148" stroke="#111" stroke-width="0.9" fill="none"/>
+<text x="827" y="1141" font-size="13" fill="#1a5276" text-anchor="start" font-weight="bold">벽두께 / 재질</text>
+<text x="975" y="1141" font-size="13" fill="#111" text-anchor="start" font-weight="normal">2.6 mm  ·  PETG(내열·내습) 권장, 채움 15%↑</text>
+<line x1="815" y1="1148" x2="1641" y2="1148" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="965" y1="1148" x2="965" y2="1173" stroke="#111" stroke-width="0.9" fill="none"/>
+<text x="827" y="1166" font-size="13" fill="#1a5276" text-anchor="start" font-weight="bold">공차 / 단위</text>
+<text x="975" y="1166" font-size="13" fill="#111" text-anchor="start" font-weight="normal">일반공차 ±0.5, 실측 후 ±1~2 여유  ·  단위 mm</text>
+<line x1="815" y1="1173" x2="1641" y2="1173" stroke="#111" stroke-width="0.9" fill="none"/>
+<line x1="965" y1="1173" x2="965" y2="1198" stroke="#111" stroke-width="0.9" fill="none"/>
+<text x="827" y="1191" font-size="13" fill="#1a5276" text-anchor="start" font-weight="bold">출처 세션</text>
+<text x="975" y="1191" font-size="13" fill="#111" text-anchor="start" font-weight="normal">claude/ac-noise-duct-3d-fzpgaq  (cold_air_duct)</text>
+<rect x="58" y="970" width="700" height="188" fill="#f7f9fb" stroke="#111" stroke-width="1"/>
+<text x="70" y="992" font-size="15" fill="#111" text-anchor="start" font-weight="bold">NOTES</text>
+<text x="70" y="1014" font-size="13" fill="#111" text-anchor="start" font-weight="normal">1. 치수 단위 mm. 인쇄 전 에어컨 실토출구를 실측해</text>
+<text x="70" y="1036" font-size="13" fill="#111" text-anchor="start" font-weight="normal">   흡입 80(가로)×370(세로)·⌀142 를 맞출 것 (+1~2 여유).</text>
+<text x="70" y="1058" font-size="13" fill="#111" text-anchor="start" font-weight="normal">2. 스케치 판독: 세로 370(수직)은 벤드 평면 밖 → R80 유효,</text>
+<text x="70" y="1080" font-size="13" fill="#111" text-anchor="start" font-weight="normal">   가로 80 방향으로 타이트하게 90° 옆-토출 벤드.</text>
+<text x="70" y="1102" font-size="13" fill="#111" text-anchor="start" font-weight="normal">3. 넓은 세로 370 → Ø142 로 급수축(트랜지션) — 수밀 검증 완료.</text>
+<text x="70" y="1124" font-size="13" fill="#111" text-anchor="start" font-weight="normal">4. 외부수나사(⌀151,P15,2줄,L42)에 Ø150 호스 체결. 벽 3줄↑.</text>
+<text x="70" y="1146" font-size="13" fill="#111" text-anchor="start" font-weight="normal">5. 원본: generate_stl.py (INLET_W=80, INLET_D=370, BEND_R=80).</text>
+</svg>
