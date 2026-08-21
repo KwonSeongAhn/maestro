@@ -319,9 +319,174 @@ foreach ($p in $candidates) {
 }
 if (-not $movedAny) { Say "    잔존 폴더 없음." }
 
-# ------------------------------------------------- [7] 수리 후 상태 재확인
+# ------------------------------------------- [7] 대상 없는 CHITUBOX 바로가기
 Say ""
-Say "[7] 수리 후 상태"
+Say "[7] 깨진 바로가기(.lnk) 정리"
+$lnkRoots = @(
+    [Environment]::GetFolderPath('Desktop'),
+    [Environment]::GetFolderPath('CommonDesktopDirectory'),
+    (Join-Path $env:APPDATA   'Microsoft\Windows\Start Menu\Programs'),
+    (Join-Path $env:ProgramData 'Microsoft\Windows\Start Menu\Programs'),
+    (Join-Path $env:APPDATA   'Microsoft\Internet Explorer\Quick Launch\User Pinned\TaskBar')
+)
+$sh = New-Object -ComObject WScript.Shell
+$lnkHit = 0
+foreach ($lr in $lnkRoots) {
+    if (-not $lr -or -not (Test-Path -LiteralPath $lr)) { continue }
+    foreach ($lnk in (Get-ChildItem -LiteralPath $lr -Filter '*.lnk' -Recurse -ErrorAction SilentlyContinue)) {
+        if ($lnk.Name -notlike '*CHITU*') { continue }
+        $target = ''
+        try { $target = $sh.CreateShortcut($lnk.FullName).TargetPath } catch { }
+        $alive = ($target -and (Test-Path -LiteralPath $target -ErrorAction SilentlyContinue))
+        Say "    $($lnk.FullName)"
+        Say "        -> '$target'  (대상 존재: $alive)"
+        if ($alive) { Say "        유지" 'Green'; continue }
+        $lnkHit++
+        if ($DryRun) { Say "        (dry-run) 백업 후 제거 예정" 'Cyan'; continue }
+        $ldest = Join-Path $fileDir 'shortcuts'
+        New-Item -ItemType Directory -Path $ldest -Force | Out-Null
+        try {
+            Move-Item -LiteralPath $lnk.FullName -Destination $ldest -Force -ErrorAction Stop
+            Say "        - 백업 폴더로 이동" 'Green'
+        } catch { Say "        ! 이동 실패: $($_.Exception.Message)" 'Yellow' }
+    }
+}
+if ($lnkHit -eq 0) { Say "    깨진 CHITUBOX 바로가기 없음." }
+
+# ----------------------------------------------- [8] 설치기 임시파일 잔여물
+Say ""
+Say "[8] %TEMP% 설치 잔여물 (NSIS 작업 폴더)"
+$tempHit = 0
+foreach ($t in (Get-ChildItem -LiteralPath $env:TEMP -ErrorAction SilentlyContinue)) {
+    $isNsis  = ($t.PSIsContainer -and $t.Name -match '^ns[0-9A-Za-z]{3,6}\.tmp$')
+    $isChitu = ($t.Name -like '*CHITU*')
+    if (-not ($isNsis -or $isChitu)) { continue }
+    $tempHit++
+    Say "    발견: $($t.FullName)"
+    if ($DryRun) { Say "    (dry-run) 삭제 예정" 'Cyan'; continue }
+    try {
+        Remove-Item -LiteralPath $t.FullName -Recurse -Force -ErrorAction Stop
+        Say "    - 삭제됨" 'Green'
+    } catch { Say "    ! 삭제 실패(사용 중): $($_.Exception.Message)" 'Yellow' }
+}
+if ($tempHit -eq 0) { Say "    잔여물 없음." }
+
+# --------------------------------- [9] 실행 하이재킹 (IFEO / AppCompat) 점검
+Say ""
+Say "[9] 실행 하이재킹 점검 (Image File Execution Options / AppCompatFlags)"
+Say "    * EXE 실행을 다른 프로그램으로 가로채는 설정입니다. 설치기가 조용히 죽는 원인이 될 수 있습니다."
+$ifeoRoots = @(
+    'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Image File Execution Options',
+    'HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows NT\CurrentVersion\Image File Execution Options'
+)
+$ifeoHit = 0
+foreach ($ir in $ifeoRoots) {
+    if (-not (Test-Path $ir)) { continue }
+    foreach ($k in (Get-ChildItem -Path $ir -ErrorAction SilentlyContinue)) {
+        $dbg = (Get-ItemProperty -LiteralPath $k.PSPath -Name 'Debugger' -ErrorAction SilentlyContinue).Debugger
+        if (-not $dbg) { continue }
+        $ifeoHit++
+        Say "    Debugger 설정됨: $($k.PSChildName)  ->  $dbg" 'Yellow'
+        if ($k.PSChildName -like '*CHITU*') {
+            Say "        CHITUBOX 대상이므로 제거합니다."
+            Remove-RegKeySafely $k.Name "ifeo_$($k.PSChildName)" | Out-Null
+        } else {
+            Say "        CHITUBOX 무관 항목 -> 자동 제거하지 않고 보고만 합니다. 로그를 확인하십시오."
+        }
+    }
+}
+if ($ifeoHit -eq 0) { Say "    Debugger 하이재킹 없음 (정상)." }
+
+$layers = @(
+    'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers',
+    'HKCU:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\AppCompatFlags\Layers'
+)
+foreach ($lp in $layers) {
+    if (-not (Test-Path $lp)) { continue }
+    $lprops = Get-ItemProperty -LiteralPath $lp
+    $lprops.PSObject.Properties | Where-Object { $_.Name -like '*CHITU*' } | ForEach-Object {
+        Say "    호환성 계층: $($_.Name) = $($_.Value)" 'Yellow'
+        if (-not $DryRun) {
+            Backup-RegKey (Get-Item $lp).Name "appcompat_layers" | Out-Null
+            Remove-ItemProperty -LiteralPath $lp -Name $_.Name -Force -ErrorAction SilentlyContinue
+            Say "    - 제거됨" 'Green'
+        }
+    }
+}
+
+# ------------------------------------------------------- [10] 방화벽 규칙
+Say ""
+Say "[10] CHITUBOX 방화벽 규칙"
+$fwHit = 0
+try {
+    foreach ($r in (Get-NetFirewallRule -ErrorAction Stop)) {
+        $isChitu = ($r.DisplayName -like '*CHITU*')
+        if (-not $isChitu) {
+            $af = $r | Get-NetFirewallApplicationFilter -ErrorAction SilentlyContinue
+            if ($af -and "$($af.Program)" -like '*CHITU*') { $isChitu = $true }
+        }
+        if (-not $isChitu) { continue }
+        $fwHit++
+        Say "    발견: $($r.DisplayName)  [$($r.Direction)/$($r.Action)]"
+        if ($DryRun) { Say "    (dry-run) 제거 예정" 'Cyan'; continue }
+        try { Remove-NetFirewallRule -Name $r.Name -ErrorAction Stop; Say "    - 제거됨" 'Green' }
+        catch { Say "    ! 제거 실패: $($_.Exception.Message)" 'Yellow' }
+    }
+} catch {
+    Say "    ! 방화벽 규칙을 읽을 수 없음: $($_.Exception.Message)" 'Yellow'
+}
+if ($fwHit -eq 0) { Say "    관련 규칙 없음." }
+
+# --------------------------------------------- [11] 설치 파일 차단 해제
+Say ""
+Say "[11] 설치 파일 차단(Zone.Identifier) 해제"
+$dlRoots = @(
+    [Environment]::GetFolderPath('Desktop'),
+    (Join-Path $env:USERPROFILE 'Downloads')
+)
+$ubHit = 0
+foreach ($dr in $dlRoots) {
+    if (-not (Test-Path -LiteralPath $dr)) { continue }
+    foreach ($f in (Get-ChildItem -LiteralPath $dr -ErrorAction SilentlyContinue |
+                    Where-Object { -not $_.PSIsContainer -and $_.Name -like '*CHITU*' -and
+                                   ($_.Extension -in @('.exe', '.ps1', '.msi', '.zip')) })) {
+        $zone = Get-Item -LiteralPath $f.FullName -Stream 'Zone.Identifier' -ErrorAction SilentlyContinue
+        if (-not $zone) { continue }
+        $ubHit++
+        Say "    차단됨: $($f.FullName)"
+        if ($DryRun) { Say "    (dry-run) 해제 예정" 'Cyan'; continue }
+        Unblock-File -LiteralPath $f.FullName -ErrorAction SilentlyContinue
+        Say "    - 해제됨" 'Green'
+    }
+}
+if ($ubHit -eq 0) { Say "    차단된 파일 없음." }
+
+# ------------------------------------- [12] 아이콘 / 썸네일 캐시 재생성
+Say ""
+Say "[12] 아이콘·썸네일 캐시 재생성"
+Say "    (썸네일 확장을 제거했으므로 캐시를 비워야 탐색기가 죽은 핸들러를 다시 부르지 않습니다)"
+if ($DryRun) {
+    Say "    (dry-run) 건너뜀" 'Cyan'
+} else {
+    $expWasRunning = [bool](Get-Process -Name explorer -ErrorAction SilentlyContinue)
+    Stop-Process -Name explorer -Force -ErrorAction SilentlyContinue
+    Start-Sleep -Seconds 2
+    $cacheDir = Join-Path $env:LOCALAPPDATA 'Microsoft\Windows\Explorer'
+    $removed = 0
+    foreach ($c in (Get-ChildItem -LiteralPath $cacheDir -Filter '*cache*.db' -ErrorAction SilentlyContinue)) {
+        try { Remove-Item -LiteralPath $c.FullName -Force -ErrorAction Stop; $removed++ } catch { }
+    }
+    Say "    - 캐시 파일 $removed 개 삭제"
+    Start-Sleep -Seconds 1
+    if ($expWasRunning -and -not (Get-Process -Name explorer -ErrorAction SilentlyContinue)) {
+        Start-Process explorer.exe
+        Say "    - 탐색기 재시작" 'Green'
+    }
+}
+
+# ------------------------------------------------ [13] 수리 후 상태 재확인
+Say ""
+Say "[13] 수리 후 상태"
 $leftUninstall = @()
 foreach ($root in $uninstallRoots) {
     if (-not (Test-Path $root)) { continue }
@@ -337,9 +502,9 @@ Say "    남은 CHITUBOX 언인스톨 항목 : $($leftUninstall.Count)  (기대�
 Say "    남은 CHITU PendingRename   : $leftPfroChitu  (기대값 0)"
 Say "    남은 Program Files 폴더     : $(@($candidates | Where-Object { $_ -and (Test-Path -LiteralPath $_) }).Count)  (기대값 0)"
 
-# ------------------------------------- [8] 보안 상태 (읽기 전용 · 변경 안 함)
+# ------------------------------------ [14] 보안 상태 (읽기 전용 · 변경 안 함)
 Say ""
-Say "[8] 보안 상태 점검 (읽기 전용 — 이 스크립트는 아무것도 바꾸지 않습니다)"
+Say "[14] 보안 상태 점검 (읽기 전용 — 이 스크립트는 아무것도 바꾸지 않습니다)"
 try {
     $mp = Get-MpPreference -ErrorAction Stop
     $st = Get-MpComputerStatus -ErrorAction SilentlyContinue
@@ -367,7 +532,7 @@ Say "==============================================================="
 Say " 완료. 로그: $logPath"
 Say " 다음 단계:"
 Say "   1) 반드시 재부팅 하십시오. (PendingFileRenameOperations 큐 반영)"
-Say "   2) 재부팅 후 REPAIR_LOG.txt 의 [7] 항목이 전부 0 인지 확인"
+Say "   2) 재부팅 후 REPAIR_LOG.txt 의 [13] 항목이 전부 0 인지 확인"
 Say "   3) chitubox.com 공식 설치기로 설치"
 Say " 되돌리기: $regDir 의 .reg 파일 더블클릭 + $fileDir 의 폴더를 원위치로 이동"
 Say "==============================================================="
